@@ -1,0 +1,19 @@
+name: firestore_ui
+description: A new flutter package project.
+version: 1.0.0
+author: Gildásio Filho <gildasiogx@gmail.com>
+homepage: https://github.com/gildaswise/firestore_ui
+
+environment:
+  sdk: ">=2.0.0-dev.68.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cloud_firestore: ^0.8.0  
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
