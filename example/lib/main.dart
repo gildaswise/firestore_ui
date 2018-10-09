@@ -4,8 +4,9 @@
 
 import 'dart:async';
 
+import 'package:firebase_core/firebase_core.dart'
+    show FirebaseApp, FirebaseOptions;
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firestore_ui/animated_firestore_list.dart';
 

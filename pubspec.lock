@@ -72,7 +72,7 @@ packages:
     source: hosted
     version: "0.14.5"
   firebase_core:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: firebase_core
       url: "https://pub.dartlang.org"
@@ -173,7 +173,7 @@ packages:
     source: hosted
     version: "0.12.3+1"
   meta:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: meta
       url: "https://pub.dartlang.org"

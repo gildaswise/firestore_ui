@@ -7,7 +7,7 @@ import 'dart:collection';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firestore_ui/stream_subscriber_mixin.dart';
-import 'package:meta/meta.dart';
+import 'package:meta/meta.dart' show required;
 
 typedef void DocumentCallback(int index, DocumentSnapshot snapshot);
 typedef void ValueCallback(DocumentSnapshot snapshot);
