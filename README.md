@@ -4,7 +4,7 @@ This project started as a [Pull Request](https://github.com/flutter/plugins/pull
 
 But fear not, my fellow Cloud Firestore users, this is a package that extracted the main code from that PR and now it's available to use!
 
-Check out the example for more info, it should be pretty straight forward since it's just a port of [firebase_auth](https://pub.dartlang.org/packages/firebase_auth)'s version.
+Check out the example for more info, it should be pretty straight forward since it's just a port of [firebase_database](https://pub.dartlang.org/packages/firebase_database)'s version.
 
 ## Getting Started
 

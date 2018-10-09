@@ -1,5 +1,5 @@
 name: firestore_ui
-description: A new flutter package project.
+description: A port of firebase_database's FirebaseAnimatedList
 version: 1.0.0
 author: Gildásio Filho <gildasiogx@gmail.com>
 homepage: https://github.com/gildaswise/firestore_ui
