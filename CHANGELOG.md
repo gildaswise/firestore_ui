@@ -1,3 +1,3 @@
-## [0.0.1] - TODO: Add release date.
+## [0.0.1] - 2018-10-09
 
-* TODO: Describe initial release.
+* Initial release derived from [cloud_firestore](https://github.com/flutter/plugins/pull/757)'s pull request #757
