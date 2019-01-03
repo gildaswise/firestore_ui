@@ -37,6 +37,7 @@ class FirestoreAnimatedList extends StatefulWidget {
     this.padding,
     this.duration = const Duration(milliseconds: 300),
   }) : super(key: key) {
+    assert(query != null);
     assert(itemBuilder != null);
   }
 
@@ -48,7 +49,7 @@ class FirestoreAnimatedList extends StatefulWidget {
   final Widget defaultChild;
 
   /// A widget to display if an error ocurred. Defaults to a
-  /// centered [Column] with `Icons.error` and the error itsef;
+  /// centered [Icon] with `Icons.error` and the error itsef;
   final Widget errorChild;
 
   /// A widget to display if the query returns empty. Defaults to a
@@ -155,6 +156,7 @@ class FirestoreAnimatedListState extends State<FirestoreAnimatedList> {
       onDocumentAdded: _onDocumentAdded,
       onDocumentRemoved: _onDocumentRemoved,
       onDocumentChanged: _onDocumentChanged,
+      onLoaded: _onLoaded,
       onValue: _onValue,
       onError: _onError,
       debug: widget.debug,
@@ -178,12 +180,16 @@ class FirestoreAnimatedListState extends State<FirestoreAnimatedList> {
   }
 
   void _onDocumentAdded(int index, DocumentSnapshot snapshot) {
-    if (!_loaded) {
-      return; // AnimatedList is not created yet
-    }
-    if (mounted) {
-      _animatedListKey.currentState
-          ?.insertItem(index, duration: widget.duration);
+    // if (!_loaded) {
+    //   return; // AnimatedList is not created yet
+    // }
+    try {
+      if (mounted) {
+        _animatedListKey.currentState
+            ?.insertItem(index, duration: widget.duration);
+      }
+    } catch (error) {
+      _model.log("Failed to run onDocumentAdded");
     }
   }
 
@@ -213,12 +219,16 @@ class FirestoreAnimatedListState extends State<FirestoreAnimatedList> {
     }
   }
 
-  void _onValue(DocumentSnapshot _) {
-    if (mounted) {
+  void _onLoaded(QuerySnapshot querySnapshot) {
+    if (mounted && !_loaded) {
       setState(() {
         _loaded = true;
       });
     }
+  }
+
+  void _onValue(DocumentSnapshot snapshot) {
+    _onLoaded(null);
   }
 
   Widget _buildItem(
@@ -228,26 +238,12 @@ class FirestoreAnimatedListState extends State<FirestoreAnimatedList> {
 
   @override
   Widget build(BuildContext context) {
-    if (_model == null || _model.isEmpty) {
+    if (_loaded && _model.isEmpty) {
       return widget.emptyChild ?? Container();
     }
 
-    if (!_loaded) {
-      return widget.defaultChild ??
-          const Center(child: CircularProgressIndicator());
-    }
-
     if (_error != null && _error.isNotEmpty) {
-      return widget.errorChild ??
-          Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                const Icon(Icons.error),
-                Text(_error),
-              ],
-            ),
-          );
+      return widget.errorChild ?? const Center(child: Icon(Icons.error));
     }
 
     return AnimatedList(

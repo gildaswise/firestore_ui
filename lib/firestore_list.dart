@@ -11,6 +11,7 @@ import 'package:meta/meta.dart' show required;
 
 typedef void DocumentCallback(int index, DocumentSnapshot snapshot);
 typedef void ValueCallback(DocumentSnapshot snapshot);
+typedef void QueryCallback(QuerySnapshot querySnapshot);
 typedef void ErrorCallback(Error error);
 
 /// Handles [DocumentChange] events, errors and streaming
@@ -21,6 +22,7 @@ class FirestoreList extends ListBase<DocumentSnapshot>
     this.onDocumentAdded,
     this.onDocumentRemoved,
     this.onDocumentChanged,
+    this.onLoaded,
     this.onValue,
     this.onError,
     this.debug = false,
@@ -48,6 +50,9 @@ class FirestoreList extends ListBase<DocumentSnapshot>
 
   /// Called when the data of the list has finished loading
   final ValueCallback onValue;
+
+  /// Called when the full list has been loaded
+  final QueryCallback onLoaded;
 
   /// Called when an error is reported (e.g. permission denied)
   final ErrorCallback onError;
@@ -104,19 +109,27 @@ class FirestoreList extends ListBase<DocumentSnapshot>
         }
         _onValue(change.document);
       }
+    } else {
+      log("Got null or empty list of DocumentChange, nothing to do.");
     }
   }
 
   void _onData(QuerySnapshot snapshot) {
-    if (snapshot != null) {
-      _onChange(snapshot.documentChanges);
-    }
+    log("Calling _onData for a new QuerySnapshot");
+    log("QuerySnapshot.documents: ${snapshot?.documents?.length}");
+    log("QuerySnapshot.documentChanges: ${snapshot?.documentChanges?.length}");
+    onLoaded?.call(snapshot);
+    _onChange(snapshot.documentChanges);
   }
 
   void _onDocumentAdded(DocumentChange event) {
-    log("Calling _onDocumentAdded for document on index ${event?.newIndex}");
-    _snapshots.insert(event.newIndex, event.document);
-    onDocumentAdded?.call(event.newIndex, event.document);
+    try {
+      log("Calling _onDocumentAdded for document on index ${event?.newIndex}");
+      _snapshots.insert(event.newIndex, event.document);
+      onDocumentAdded?.call(event.newIndex, event.document);
+    } catch (error) {
+      log("Failed on adding item on index ${event?.newIndex}");
+    }
   }
 
   void _onDocumentRemoved(DocumentChange event) {
