@@ -185,8 +185,10 @@ class FirestoreAnimatedListState extends State<FirestoreAnimatedList> {
     // }
     try {
       if (mounted) {
-        _animatedListKey.currentState
-            ?.insertItem(index, duration: widget.duration);
+        setState(() {
+          _animatedListKey.currentState
+              ?.insertItem(index, duration: widget.duration);
+        });
       }
     } catch (error) {
       _model.log("Failed to run onDocumentAdded");
@@ -198,14 +200,15 @@ class FirestoreAnimatedListState extends State<FirestoreAnimatedList> {
     assert(!_model.contains(snapshot));
     if (mounted) {
       try {
-        _animatedListKey.currentState?.removeItem(
-          index,
-          (BuildContext context, Animation<double> animation) {
-            return widget.itemBuilder(context, snapshot, animation, index);
-          },
-          duration: widget.duration,
-        );
-        setState(() {});
+        setState(() {
+          _animatedListKey.currentState?.removeItem(
+            index,
+            (BuildContext context, Animation<double> animation) {
+              return widget.itemBuilder(context, snapshot, animation, index);
+            },
+            duration: widget.duration,
+          );
+        });
       } catch (error) {
         _model.log("Failed to remove Widget on index $index");
       }

@@ -1,3 +1,7 @@
+## [1.1.1] - 2019-01-14
+
+* Updated `setState` calls, should be faster to show values
+
 ## [1.1.0] - 2019-01-03
 
 * Added onLoaded callback to FirestoreList
