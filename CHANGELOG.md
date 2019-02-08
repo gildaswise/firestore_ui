@@ -1,3 +1,7 @@
+## [1.2.0] - 2019-02-08
+
+* Bump cloud_firestore dependency version to 0.9.0
+
 ## [1.1.1] - 2019-01-14
 
 * Updated `setState` calls, should be faster to show values
