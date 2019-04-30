@@ -1,3 +1,8 @@
+## [1.3.0] - 2019-04-30
+
+* Added `onLoaded` method for when you need to interact directly with the `QuerySnapshot` that came from the stream
+* Bump cloud_firestore dependency version to 0.10.0
+
 ## [1.2.0] - 2019-02-08
 
 * Bump cloud_firestore dependency version to 0.9.0

@@ -24,6 +24,7 @@ class FirestoreAnimatedList extends StatefulWidget {
     Key key,
     @required this.query,
     @required this.itemBuilder,
+    this.onLoaded,
     this.defaultChild,
     this.errorChild,
     this.emptyChild,
@@ -43,6 +44,9 @@ class FirestoreAnimatedList extends StatefulWidget {
 
   /// A Firestore query to use to populate the animated list
   final Stream<QuerySnapshot> query;
+
+  /// Method that gets called once the stream updates with a new QuerySnapshot
+  final Function(QuerySnapshot) onLoaded;
 
   /// A widget to display while the query is loading. Defaults to a
   /// centered [CircularProgressIndicator];
@@ -228,6 +232,7 @@ class FirestoreAnimatedListState extends State<FirestoreAnimatedList> {
         _loaded = true;
       });
     }
+    if (querySnapshot != null) widget.onLoaded?.call(querySnapshot);
   }
 
   void _onValue(DocumentSnapshot snapshot) {
