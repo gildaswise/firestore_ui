@@ -1,5 +1,7 @@
 # firestore_ui
 
+[![pub package](https://img.shields.io/pub/v/firestore_ui.svg)](https://pub.dartlang.org/packages/firestore_ui)
+
 This project started as a [Pull Request](https://github.com/flutter/plugins/pull/757) to the official [cloud_firestore](https://pub.dartlang.org/packages/cloud_firestore) plugin, but unfortunately they are still polishing the main features and this had to be postponed.
 
 But fear not, my fellow Cloud Firestore users, this is a package that extracted the main code from that PR and now it's available to use!
