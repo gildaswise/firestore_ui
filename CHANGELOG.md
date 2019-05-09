@@ -1,3 +1,7 @@
+## [1.4.0] - 2019-05-09
+
+* Changed dependency requirements
+
 ## [1.3.0] - 2019-04-30
 
 * Added `onLoaded` method for when you need to interact directly with the `QuerySnapshot` that came from the stream
