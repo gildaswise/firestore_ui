@@ -10,6 +10,7 @@ import 'package:firestore_ui/stream_subscriber_mixin.dart';
 import 'package:meta/meta.dart' show required;
 
 typedef void DocumentCallback(int index, DocumentSnapshot snapshot);
+typedef bool FilterCallback(DocumentSnapshot snapshot);
 typedef void ValueCallback(DocumentSnapshot snapshot);
 typedef void QueryCallback(QuerySnapshot querySnapshot);
 typedef void ErrorCallback(Error error);
@@ -25,6 +26,7 @@ class FirestoreList extends ListBase<DocumentSnapshot>
     this.onLoaded,
     this.onValue,
     this.onError,
+    this.filter,
     this.debug = false,
   }) {
     assert(query != null);
@@ -38,6 +40,10 @@ class FirestoreList extends ListBase<DocumentSnapshot>
   final bool debug;
 
   static const String TAG = "FIRESTORE_LIST";
+
+  /// Called before any operation with a DocumentSnapshot;
+  /// If it returns `true`, then dismisses that DocumentSnapshot from the list
+  final FilterCallback filter;
 
   /// Called when the Document has been added
   final DocumentCallback onDocumentAdded;
@@ -96,18 +102,22 @@ class FirestoreList extends ListBase<DocumentSnapshot>
   void _onChange(List<DocumentChange> documentChanges) {
     if (documentChanges != null && documentChanges.isNotEmpty) {
       for (DocumentChange change in documentChanges) {
-        switch (change.type) {
-          case DocumentChangeType.added:
-            _onDocumentAdded(change);
-            break;
-          case DocumentChangeType.modified:
-            _onDocumentChanged(change);
-            break;
-          case DocumentChangeType.removed:
-            _onDocumentRemoved(change);
-            break;
+        if (filter?.call(change.document) ?? false) {
+          log("Document ${change.document.documentID} filtered out of list");
+        } else {
+          switch (change.type) {
+            case DocumentChangeType.added:
+              _onDocumentAdded(change);
+              break;
+            case DocumentChangeType.modified:
+              _onDocumentChanged(change);
+              break;
+            case DocumentChangeType.removed:
+              _onDocumentRemoved(change);
+              break;
+          }
+          _onValue(change.document);
         }
-        _onValue(change.document);
       }
     } else {
       log("Got null or empty list of DocumentChange, nothing to do.");

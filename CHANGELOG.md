@@ -1,3 +1,8 @@
+## [1.5.0] - 2019-05-09
+
+* Added `filter` parameter that takes out data if it returns true for that `DocumentSnapshot`
+* Updated cloud_firestore to 0.12.0
+
 ## [1.4.0] - 2019-05-09
 
 * Changed dependency requirements

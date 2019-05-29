@@ -1,8 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart'
-    show FirebaseApp, FirebaseOptions;
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firestore_ui/firestore_list.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -153,5 +152,7 @@ void main() {
       expect(list.length, 1);
       expect(list[0].data, kMockDocumentSnapshotData);
     });
+
+    streamController?.close();
   });
 }

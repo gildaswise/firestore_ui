@@ -25,6 +25,7 @@ class FirestoreAnimatedList extends StatefulWidget {
     @required this.query,
     @required this.itemBuilder,
     this.onLoaded,
+    this.filter,
     this.defaultChild,
     this.errorChild,
     this.emptyChild,
@@ -47,6 +48,10 @@ class FirestoreAnimatedList extends StatefulWidget {
 
   /// Method that gets called once the stream updates with a new QuerySnapshot
   final Function(QuerySnapshot) onLoaded;
+
+  /// Called before any operation with a DocumentSnapshot;
+  /// If it returns `true`, then dismisses that DocumentSnapshot from the list
+  final FilterCallback filter;
 
   /// A widget to display while the query is loading. Defaults to a
   /// centered [CircularProgressIndicator];
@@ -163,6 +168,7 @@ class FirestoreAnimatedListState extends State<FirestoreAnimatedList> {
       onLoaded: _onLoaded,
       onValue: _onValue,
       onError: _onError,
+      filter: widget.filter,
       debug: widget.debug,
     );
     super.didChangeDependencies();
