@@ -7,7 +7,7 @@ import 'dart:collection';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firestore_ui/stream_subscriber_mixin.dart';
-import 'package:meta/meta.dart' show required;
+import 'package:meta/meta.dart';
 
 typedef void DocumentCallback(int index, DocumentSnapshot snapshot);
 typedef bool FilterCallback(DocumentSnapshot snapshot);
@@ -102,7 +102,9 @@ class FirestoreList extends ListBase<DocumentSnapshot>
   void _onChange(List<DocumentChange> documentChanges) {
     if (documentChanges != null && documentChanges.isNotEmpty) {
       for (DocumentChange change in documentChanges) {
-        if (filter?.call(change.document) ?? false) {
+        final isHidden = filter?.call(change.document) ?? false;
+        log("Document ${change.document.documentID} is hidden: $isHidden");
+        if (isHidden) {
           log("Document ${change.document.documentID} filtered out of list");
         } else {
           switch (change.type) {
@@ -135,8 +137,9 @@ class FirestoreList extends ListBase<DocumentSnapshot>
   void _onDocumentAdded(DocumentChange event) {
     try {
       log("Calling _onDocumentAdded for document on index ${event?.newIndex}");
-      _snapshots.insert(event.newIndex, event.document);
-      onDocumentAdded?.call(event.newIndex, event.document);
+      final index = event.newIndex >= length ? length : event.newIndex;
+      _snapshots.insert(index, event.document);
+      onDocumentAdded?.call(index, event.document);
     } catch (error) {
       log("Failed on adding item on index ${event?.newIndex}");
     }
@@ -145,8 +148,13 @@ class FirestoreList extends ListBase<DocumentSnapshot>
   void _onDocumentRemoved(DocumentChange event) {
     try {
       log("Calling _onDocumentRemoved for document on index ${event?.newIndex}");
-      _snapshots.removeAt(event.oldIndex);
-      onDocumentRemoved?.call(event.oldIndex, event.document);
+      final index = _indexForKey(event.document.documentID);
+      if (index > -1) {
+        _snapshots.removeAt(index);
+        onDocumentRemoved?.call(index, event.document);
+      } else {
+        log("Failed on removing item on index ${index}");
+      }
     } catch (error) {
       log("Failed on removing item on index ${event?.oldIndex}");
     }

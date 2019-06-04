@@ -1,3 +1,8 @@
+## [1.6.0] - 2019-06-04
+
+* Updates to the `filter` mechanism, it would hide items due to an index mismanagement
+* Updated cloud_firestore to 0.12.2
+
 ## [1.5.0] - 2019-05-09
 
 * Added `filter` parameter that takes out data if it returns true for that `DocumentSnapshot`
