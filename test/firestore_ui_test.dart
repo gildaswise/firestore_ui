@@ -50,7 +50,7 @@ void main() {
             // Wait before sending a message back.
             // Otherwise the first request didn't have the time to finish.
             Future<void>.delayed(Duration.zero).then((_) {
-              BinaryMessages.handlePlatformMessage(
+              defaultBinaryMessenger.handlePlatformMessage(
                 Firestore.channel.name,
                 Firestore.channel.codec.encodeMethodCall(
                   MethodCall('QuerySnapshot', <String, dynamic>{
@@ -77,7 +77,7 @@ void main() {
             // Wait before sending a message back.
             // Otherwise the first request didn't have the time to finish.
             Future<void>.delayed(Duration.zero).then((_) {
-              BinaryMessages.handlePlatformMessage(
+              defaultBinaryMessenger.handlePlatformMessage(
                 Firestore.channel.name,
                 Firestore.channel.codec.encodeMethodCall(
                   MethodCall('DocumentSnapshot', <String, dynamic>{

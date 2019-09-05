@@ -76,7 +76,9 @@ class FirestoreList extends ListBase<DocumentSnapshot>
 
   @override
   DocumentSnapshot operator [](int index) =>
-      _snapshots.isEmpty ? null : _snapshots[index];
+      _snapshots.isEmpty || index < 0 || index >= length
+          ? null
+          : _snapshots[index];
 
   @override
   void operator []=(int index, DocumentSnapshot value) {
@@ -153,7 +155,7 @@ class FirestoreList extends ListBase<DocumentSnapshot>
         _snapshots.removeAt(index);
         onDocumentRemoved?.call(index, event.document);
       } else {
-        log("Failed on removing item on index ${index}");
+        log("Failed on removing item on index $index");
       }
     } catch (error) {
       log("Failed on removing item on index ${event?.oldIndex}");

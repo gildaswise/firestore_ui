@@ -6,9 +6,9 @@ import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart'
     show FirebaseApp, FirebaseOptions;
+import 'package:firestore_ui/firestore_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firestore_ui/animated_firestore_list.dart';
 
 final String title = 'firestore_ui example';
 
@@ -27,12 +27,12 @@ Future<void> main() async {
   runApp(MaterialApp(title: title, home: MyHomePage(firestore: firestore)));
 }
 
-class MessageItem extends StatelessWidget {
+class MessageListTile extends StatelessWidget {
   final int index;
   final DocumentSnapshot document;
   final Function(DocumentSnapshot) onTap;
 
-  const MessageItem({
+  const MessageListTile({
     Key key,
     this.index,
     this.document,
@@ -42,61 +42,183 @@ class MessageItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(document['message'] ?? '<No message retrieved>'),
+      title: Text(
+          document != null ? "${document['message']}" : 'No message retrieved'),
       subtitle: Text('Message ${this.index + 1}'),
       onTap: () => onTap(this.document),
     );
   }
 }
 
-class MyHomePage extends StatelessWidget {
-  MyHomePage({this.firestore});
-  final Firestore firestore;
-  CollectionReference get messages => firestore.collection('messages');
+class MessageGridTile extends StatelessWidget {
+  final int index;
+  final DocumentSnapshot document;
+  final Function(DocumentSnapshot) onTap;
 
-  Future<Null> _addMessage() async {
-    final DocumentReference document = messages.document();
-    document.setData(<String, dynamic>{
-      'message': 'Hello world!',
-    });
-  }
-
-  Future<Null> _removeMessage(DocumentSnapshot snapshot) async {
-    await firestore.runTransaction((transaction) async {
-      await transaction.delete(snapshot.reference).catchError(
-          (exception, stacktrace) => print("Couldn't remove item: $exception"));
-    });
-  }
+  const MessageGridTile({
+    Key key,
+    this.index,
+    this.document,
+    this.onTap,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
+    return InkWell(
+      onTap: () => onTap?.call(document),
+      child: Container(
+        color: Colors.green,
+        child: Center(
+          child: CircleAvatar(
+            backgroundColor: Colors.white,
+            child: Text('${this.index + 1}'),
+          ),
+        ),
       ),
-      body: FirestoreAnimatedList(
-        query: firestore.collection('messages').snapshots(),
-        itemBuilder: (
-          BuildContext context,
-          DocumentSnapshot snapshot,
-          Animation<double> animation,
-          int index,
-        ) {
-          return FadeTransition(
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  final Firestore firestore;
+
+  MyHomePage({Key key, this.firestore}) : super(key: key);
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  int _currentIndex = 1;
+
+  CollectionReference get messages => widget.firestore.collection('messages');
+
+  Future<void> _addMessage() async =>
+      await messages.document().setData(<String, dynamic>{
+        'message': 'Hello world!',
+      });
+
+  Future<void> _removeMessage(DocumentSnapshot snapshot) async =>
+      await widget.firestore.runTransaction((transaction) async {
+        await transaction.delete(snapshot.reference).catchError(
+            (exception, stacktrace) =>
+                print("Couldn't remove item: $exception"));
+      });
+
+  void _updateIndex(int value) {
+    if (mounted) setState(() => _currentIndex = value);
+  }
+
+  Stream<QuerySnapshot> get query =>
+      widget.firestore.collection('messages').snapshots();
+
+  @override
+  Widget build(BuildContext context) {
+    Widget body;
+
+    switch (_currentIndex) {
+      case 0:
+        body = FirestoreAnimatedList(
+          key: ValueKey("list"),
+          query: query,
+          onLoaded: (snapshot) =>
+              print("Received on list: ${snapshot.documents.length}"),
+          itemBuilder: (
+            BuildContext context,
+            DocumentSnapshot snapshot,
+            Animation<double> animation,
+            int index,
+          ) =>
+              FadeTransition(
             opacity: animation,
-            child: MessageItem(
+            child: MessageListTile(
               index: index,
               document: snapshot,
               onTap: _removeMessage,
             ),
-          );
-        },
+          ),
+        );
+        break;
+      case 1:
+        body = FirestoreAnimatedGrid(
+          key: ValueKey("grid"),
+          query: query,
+          onLoaded: (snapshot) =>
+              print("Received on grid: ${snapshot.documents.length}"),
+          crossAxisCount: 2,
+          itemBuilder: (
+            BuildContext context,
+            DocumentSnapshot snapshot,
+            Animation<double> animation,
+            int index,
+          ) {
+            return FadeTransition(
+              opacity: animation,
+              child: MessageGridTile(
+                index: index,
+                document: snapshot,
+                onTap: _removeMessage,
+              ),
+            );
+          },
+        );
+        break;
+      case 2:
+        body = FirestoreAnimatedStaggered(
+          key: ValueKey("staggered"),
+          onLoaded: (snapshot) =>
+              print("Received on staggered: ${snapshot.documents.length}"),
+          staggeredTileBuilder: (int index) =>
+              StaggeredTile.count(2, index.isEven ? 2 : 1),
+          crossAxisCount: 4,
+          query: query,
+          itemBuilder: (
+            BuildContext context,
+            DocumentSnapshot snapshot,
+            Animation<double> animation,
+            int index,
+          ) {
+            return FadeTransition(
+              opacity: animation,
+              child: MessageGridTile(
+                index: index,
+                document: snapshot,
+                onTap: _removeMessage,
+              ),
+            );
+          },
+        );
+        break;
+    }
+
+    return Scaffold(
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: _updateIndex,
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.filter_1),
+            title: Text("List"),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.filter_2),
+            title: Text("Grid"),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.filter_3),
+            title: Text("Staggered"),
+          ),
+        ],
+      ),
+      appBar: AppBar(
+        title: Text(title),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addMessage,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),
+      body: body,
     );
   }
 }

@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 
 import 'firestore_list.dart';
 
-typedef Widget FirestoreAnimatedListItemBuilder(
+typedef Widget FirestoreAnimatedGridItemBuilder(
   BuildContext context,
   DocumentSnapshot snapshot,
   Animation<double> animation,
@@ -19,12 +19,16 @@ typedef Widget FirestoreAnimatedListItemBuilder(
 );
 
 /// An AnimatedList widget that is bound to a query
-class FirestoreAnimatedList extends StatefulWidget {
+class FirestoreAnimatedGrid extends StatefulWidget {
   /// Creates a scrolling container that animates items when they are inserted or removed.
-  FirestoreAnimatedList({
+  FirestoreAnimatedGrid({
     Key key,
     @required this.query,
     @required this.itemBuilder,
+    @required this.crossAxisCount,
+    this.mainAxisSpacing = 4.0,
+    this.crossAxisSpacing = 4.0,
+    this.childAspectRatio = 1.0,
     this.onLoaded,
     this.filter,
     this.defaultChild,
@@ -39,16 +43,31 @@ class FirestoreAnimatedList extends StatefulWidget {
     this.shrinkWrap = false,
     this.padding,
     this.duration = const Duration(milliseconds: 300),
-  }) : super(key: key) {
-    assert(query != null);
-    assert(itemBuilder != null);
-  }
+  })  : assert(query != null),
+        assert(itemBuilder != null),
+        assert(crossAxisCount != null && crossAxisCount > 0),
+        assert(mainAxisSpacing != null && mainAxisSpacing >= 0),
+        assert(crossAxisSpacing != null && crossAxisSpacing >= 0),
+        assert(childAspectRatio != null && childAspectRatio > 0),
+        super(key: key);
 
   /// A Firestore query to use to populate the animated list
   final Stream<QuerySnapshot> query;
 
   /// Method that gets called once the stream updates with a new QuerySnapshot
   final Function(QuerySnapshot) onLoaded;
+
+  /// The number of children in the cross axis.
+  final int crossAxisCount;
+
+  /// The number of logical pixels between each child along the main axis.
+  final double mainAxisSpacing;
+
+  /// The number of logical pixels between each child along the cross axis.
+  final double crossAxisSpacing;
+
+  /// The ratio of the cross-axis to the main-axis extent of each child.
+  final double childAspectRatio;
 
   /// Called before any operation with a DocumentSnapshot;
   /// If it returns `true`, then dismisses that DocumentSnapshot from the list
@@ -75,7 +94,7 @@ class FirestoreAnimatedList extends StatefulWidget {
   ///
   /// Implementations of this callback should assume that [AnimatedList.removeItem]
   /// removes an item immediately.
-  final FirestoreAnimatedListItemBuilder itemBuilder;
+  final FirestoreAnimatedGridItemBuilder itemBuilder;
 
   /// The axis along which the scroll view scrolls.
   ///
@@ -149,12 +168,12 @@ class FirestoreAnimatedList extends StatefulWidget {
   final Duration duration;
 
   @override
-  FirestoreAnimatedListState createState() => FirestoreAnimatedListState();
+  FirestoreAnimatedGridState createState() => FirestoreAnimatedGridState();
 }
 
-class FirestoreAnimatedListState extends State<FirestoreAnimatedList> {
-  final GlobalKey<AnimatedListState> _animatedListKey =
-      GlobalKey<AnimatedListState>();
+class FirestoreAnimatedGridState extends State<FirestoreAnimatedGrid> {
+  final GlobalKey<AnimatedGridState> _animatedListKey =
+      GlobalKey<AnimatedGridState>();
   FirestoreList _model;
   String _error;
   bool _loaded = false;
@@ -261,8 +280,12 @@ class FirestoreAnimatedListState extends State<FirestoreAnimatedList> {
       return widget.errorChild ?? const Center(child: Icon(Icons.error));
     }
 
-    return AnimatedList(
+    return AnimatedGrid(
       key: _animatedListKey,
+      crossAxisCount: widget.crossAxisCount,
+      mainAxisSpacing: widget.mainAxisSpacing,
+      childAspectRatio: widget.childAspectRatio,
+      crossAxisSpacing: widget.crossAxisSpacing,
       itemBuilder: _buildItem,
       initialItemCount: _model.length,
       scrollDirection: widget.scrollDirection,

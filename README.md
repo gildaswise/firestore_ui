@@ -8,8 +8,83 @@ But fear not, my fellow Cloud Firestore users, this is a package that extracted 
 
 Check out the example for more info, it should be pretty straight forward since it's just a port of [firebase_database](https://pub.dartlang.org/packages/firebase_database)'s version.
 
-## Getting Started
+# How to use
 
-For help getting started with Flutter, view our online [documentation](https://flutter.io/).
+All the examples below are from the actual `example` folder, please run that to see how it behaves!
 
-For help on editing package code, view the [documentation](https://flutter.io/developing-packages/).
+## List
+
+Just set it up as you would with a `ListView.builder`:
+
+```dart
+FirestoreAnimatedList(
+    query: query,
+    itemBuilder: (
+        BuildContext context,
+        DocumentSnapshot snapshot,
+        Animation<double> animation,
+        int index,
+    ) => FadeTransition(
+            opacity: animation,
+            child: MessageListTile(
+            index: index,
+            document: snapshot,
+            onTap: _removeMessage,
+        ),
+    ),
+);
+```
+
+## Grid
+
+Just set it up as you would with a `GridView.count`, alongside the necessary `crossAxisCount`, all the other parameters from the `SliverGridDelegateWithFixedCrossAxisCount` are also available:
+
+```dart
+FirestoreAnimatedGrid(
+    query: query,
+    crossAxisCount: 2,
+    mainAxisSpacing: 4.0,
+    childAspectRatio: 1.0,
+    crossAxisSpacing: 4.0,
+    itemBuilder: (
+        BuildContext context,
+        DocumentSnapshot snapshot,
+        Animation<double> animation,
+        int index,
+    ) => FadeTransition(
+        opacity: animation,
+        child: MessageGridTile(
+            index: index,
+            document: snapshot,
+            onTap: _removeMessage,
+        ),
+    ),
+);
+```
+
+## Staggered
+
+Just set it up as you would with a `StaggeredGridView.countBuilder`, alongside the necessary `crossAxisCount` and the `staggeredTileBuilder`:
+
+```dart
+FirestoreAnimatedStaggered(
+    query: query,
+    staggeredTileBuilder: (index) => StaggeredTile.count(2, index.isEven ? 2 : 1),
+    crossAxisCount: 4,
+    mainAxisSpacing: 4.0,
+    crossAxisSpacing: 4.0,
+    itemBuilder: (
+        BuildContext context,
+        DocumentSnapshot snapshot,
+        Animation<double> animation,
+        int index,
+    ) => FadeTransition(
+        opacity: animation,
+        child: MessageGridTile(
+            index: index,
+            document: snapshot,
+            onTap: _removeMessage,
+        ),
+    ),
+);
+```
