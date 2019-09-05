@@ -1,9 +1,10 @@
-## [1.7.0] - 2019-09-05
+## [1.7.1] - 2019-09-05
 
 * Added `FirestoreAnimatedGrid` and `FirestoreAnimatedStaggered`!
 * Updated `firebase_core` to 0.4.0+9
 * Updated `cloud_firestore` to 0.12.9+3
 * Added `flutter_staggered_grid_view` on 0.3.0
+* Minor changes to `README.md`!
 
 ## [1.6.0] - 2019-06-04
 

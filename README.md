@@ -2,11 +2,9 @@
 
 [![pub package](https://img.shields.io/pub/v/firestore_ui.svg)](https://pub.dartlang.org/packages/firestore_ui)
 
-This project started as a [Pull Request](https://github.com/flutter/plugins/pull/757) to the official [cloud_firestore](https://pub.dartlang.org/packages/cloud_firestore) plugin, but unfortunately they are still polishing the main features and this had to be postponed.
+This project started as a [Pull Request](https://github.com/flutter/plugins/pull/757) to the official [cloud_firestore](https://pub.dartlang.org/packages/cloud_firestore) plugin, but unfortunately they are still polishing the main features and this had to be postponed; it's based on [firebase_database](https://pub.dartlang.org/packages/firebase_database)'s version.
 
 But fear not, my fellow Cloud Firestore users, this is a package that extracted the main code from that PR and now it's available to use!
-
-Check out the example for more info, it should be pretty straight forward since it's just a port of [firebase_database](https://pub.dartlang.org/packages/firebase_database)'s version.
 
 # How to use
 
@@ -88,3 +86,5 @@ FirestoreAnimatedStaggered(
     ),
 );
 ```
+
+Special thanks to @letsar for the [`flutter_staggered_grid_view`](https://github.com/letsar/flutter_staggered_grid_view) package! Without it, this part wouldn't be available; please check out the library for more info on how it works!
