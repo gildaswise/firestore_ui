@@ -168,7 +168,7 @@ class _MyHomePageState extends State<MyHomePage> {
           key: ValueKey("staggered"),
           onLoaded: (snapshot) =>
               print("Received on staggered: ${snapshot.documents.length}"),
-          staggeredTileBuilder: (int index) =>
+          staggeredTileBuilder: (int index, DocumentSnapshot snapshot) =>
               StaggeredTile.count(2, index.isEven ? 2 : 1),
           crossAxisCount: 4,
           query: query,

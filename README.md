@@ -67,7 +67,7 @@ Just set it up as you would with a `StaggeredGridView.countBuilder`, alongside t
 ```dart
 FirestoreAnimatedStaggered(
     query: query,
-    staggeredTileBuilder: (index) => StaggeredTile.count(2, index.isEven ? 2 : 1),
+    staggeredTileBuilder: (int index, DocumentSnapshot snapshot) => StaggeredTile.count(2, index.isEven ? 2 : 1),
     crossAxisCount: 4,
     mainAxisSpacing: 4.0,
     crossAxisSpacing: 4.0,
@@ -87,4 +87,4 @@ FirestoreAnimatedStaggered(
 );
 ```
 
-Special thanks to @letsar for the [`flutter_staggered_grid_view`](https://github.com/letsar/flutter_staggered_grid_view) package! Without it, this part wouldn't be available; please check out the library for more info on how it works!
+Special thanks to [@letsar](https://github.com/letsar) for the [`flutter_staggered_grid_view`](https://github.com/letsar/flutter_staggered_grid_view) package! Without it, this part wouldn't be available; please check out the library for more info on how it works!

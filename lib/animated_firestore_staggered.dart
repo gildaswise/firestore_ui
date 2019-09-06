@@ -18,6 +18,11 @@ typedef Widget FirestoreAnimatedStaggeredItemBuilder(
   int index,
 );
 
+typedef StaggeredTile FirestoreStaggeredTileBuilder(
+  int index,
+  DocumentSnapshot snapshot,
+);
+
 /// An AnimatedList widget that is bound to a query
 class FirestoreAnimatedStaggered extends StatefulWidget {
   /// Creates a scrolling container that animates items when they are inserted or removed.
@@ -56,10 +61,11 @@ class FirestoreAnimatedStaggered extends StatefulWidget {
   /// A Firestore query to use to populate the animated list
   final Stream<QuerySnapshot> query;
 
-  /// Method that gets called once the stream updates with a new QuerySnapshot
+  /// Method that gets called once the stream updates with a new [QuerySnapshot]
   final Function(QuerySnapshot) onLoaded;
 
-  final IndexedStaggeredTileBuilder staggeredTileBuilder;
+  /// Signature for a function that creates [StaggeredTile] for a given index and [DocumentSnapshot]
+  final FirestoreStaggeredTileBuilder staggeredTileBuilder;
 
   /// The number of children in the cross axis.
   final int crossAxisCount;
@@ -73,8 +79,8 @@ class FirestoreAnimatedStaggered extends StatefulWidget {
   /// The ratio of the cross-axis to the main-axis extent of each child.
   final double childAspectRatio;
 
-  /// Called before any operation with a DocumentSnapshot;
-  /// If it returns `true`, then dismisses that DocumentSnapshot from the list
+  /// Called before any operation with a [DocumentSnapshot];
+  /// If it returns `true`, then dismisses that [DocumentSnapshot] from the list
   final FilterCallback filter;
 
   /// A widget to display while the query is loading. Defaults to a
@@ -288,7 +294,8 @@ class FirestoreAnimatedStaggeredState
 
     return AnimatedStaggeredGrid(
       key: _animatedListKey,
-      staggeredTileBuilder: widget.staggeredTileBuilder,
+      staggeredTileBuilder: (index) =>
+          widget.staggeredTileBuilder?.call(index, _model.elementAt(index)),
       crossAxisCount: widget.crossAxisCount,
       mainAxisSpacing: widget.mainAxisSpacing,
       crossAxisSpacing: widget.crossAxisSpacing,

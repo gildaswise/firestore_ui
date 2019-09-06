@@ -82,6 +82,7 @@ class AnimatedStaggeredGrid extends StatefulWidget {
   /// [AnimatedStaggeredGridState.removeItem] removes an item immediately.
   final AnimatedStaggeredGridItemBuilder itemBuilder;
 
+  /// Signature for a function that creates [StaggeredTile] for a given index.
   final IndexedStaggeredTileBuilder staggeredTileBuilder;
 
   /// The number of children in the cross axis.
