@@ -5,8 +5,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firestore_ui/firestore_list.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_firestore.dart';
+import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('FirestoreList', () {
     int mockHandleId = 0;
     StreamController<QuerySnapshot> streamController;
@@ -20,8 +24,11 @@ void main() {
     };
 
     setUp(() async {
-      FirebaseApp.channel.setMockMethodCallHandler(
+      MethodChannelFirebaseCore.channel.setMockMethodCallHandler(
         (MethodCall methodCall) async {},
+      );
+      MethodChannelFirestore.channel.setMockMethodCallHandler(
+        (call) async {},
       );
 
       app = await FirebaseApp.configure(
@@ -42,7 +49,8 @@ void main() {
         debug: false,
       );
 
-      Firestore.channel.setMockMethodCallHandler((MethodCall methodCall) async {
+      MethodChannelFirestore.channel
+          .setMockMethodCallHandler((MethodCall methodCall) async {
         log.add(methodCall);
         switch (methodCall.method) {
           case 'Query#addSnapshotListener':
@@ -51,8 +59,8 @@ void main() {
             // Otherwise the first request didn't have the time to finish.
             Future<void>.delayed(Duration.zero).then((_) {
               defaultBinaryMessenger.handlePlatformMessage(
-                Firestore.channel.name,
-                Firestore.channel.codec.encodeMethodCall(
+                MethodChannelFirestore.channel.name,
+                MethodChannelFirestore.channel.codec.encodeMethodCall(
                   MethodCall('QuerySnapshot', <String, dynamic>{
                     'app': app.name,
                     'handle': handle,
@@ -78,8 +86,8 @@ void main() {
             // Otherwise the first request didn't have the time to finish.
             Future<void>.delayed(Duration.zero).then((_) {
               defaultBinaryMessenger.handlePlatformMessage(
-                Firestore.channel.name,
-                Firestore.channel.codec.encodeMethodCall(
+                MethodChannelFirestore.channel.name,
+                MethodChannelFirestore.channel.codec.encodeMethodCall(
                   MethodCall('DocumentSnapshot', <String, dynamic>{
                     'handle': handle,
                     'path': methodCall.arguments['path'],
