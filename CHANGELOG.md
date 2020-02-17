@@ -1,3 +1,9 @@
+## [1.8.0] - 2020-02-17
+
+* Updated `firebase_core` to 0.4.4
+* Updated `cloud_firestore` to 0.13.2+1
+* Replaces deprecated method calls in the tests
+
 ## [1.7.2] - 2019-09-05
 
 * Added `FirestoreAnimatedGrid` and `FirestoreAnimatedStaggered`!
