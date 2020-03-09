@@ -182,7 +182,7 @@ class AnimatedGrid extends StatefulWidget {
     assert(context != null);
     assert(nullOk != null);
     final AnimatedGridState result =
-        context.ancestorStateOfType(const TypeMatcher<AnimatedGridState>());
+        context.findAncestorStateOfType<AnimatedGridState>();
     if (nullOk || result != null) return result;
     throw FlutterError(
         'AnimatedGrid.of() called with a context that does not contain an AnimatedGrid.\n'

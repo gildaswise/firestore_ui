@@ -37,6 +37,7 @@ class FirestoreAnimatedGrid extends StatefulWidget {
     this.scrollDirection = Axis.vertical,
     this.reverse = false,
     this.debug = false,
+    this.linear = false,
     this.controller,
     this.primary,
     this.physics,
@@ -72,6 +73,10 @@ class FirestoreAnimatedGrid extends StatefulWidget {
   /// Called before any operation with a DocumentSnapshot;
   /// If it returns `true`, then dismisses that DocumentSnapshot from the list
   final FilterCallback filter;
+
+  /// This will change `onDocumentAdded` call to `.add` instead of `.insert`,
+  /// which might help if your query doesn't care about order changes
+  final bool linear;
 
   /// A widget to display while the query is loading. Defaults to a
   /// centered [CircularProgressIndicator];
@@ -189,6 +194,7 @@ class FirestoreAnimatedGridState extends State<FirestoreAnimatedGrid> {
       onValue: _onValue,
       onError: _onError,
       filter: widget.filter,
+      linear: widget.linear,
       debug: widget.debug,
     );
     super.didChangeDependencies();

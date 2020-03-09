@@ -13,6 +13,8 @@ void main() {
 
   group('FirestoreList', () {
     int mockHandleId = 0;
+    final defaultBinaryMessenger =
+        ServicesBinding.instance.defaultBinaryMessenger;
     StreamController<QuerySnapshot> streamController;
     final List<MethodCall> log = <MethodCall>[];
     FirestoreList list;

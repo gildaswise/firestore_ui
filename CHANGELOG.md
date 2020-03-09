@@ -1,3 +1,9 @@
+## [1.9.0] - 2020-03-09
+
+* Updated `firebase_core` to 0.4.4+2
+* Updated `cloud_firestore` to 0.13.4+1
+* Added `linear` parameter to everything available, this will change `FirestoreList`'s `onDocumentAdded` call to `.add` instead of `.insert`, which might help if your query doesn't care about order changes
+
 ## [1.8.0] - 2020-02-17
 
 * Updated `firebase_core` to 0.4.4

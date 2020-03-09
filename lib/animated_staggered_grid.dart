@@ -183,8 +183,8 @@ class AnimatedStaggeredGrid extends StatefulWidget {
       {bool nullOk = false}) {
     assert(context != null);
     assert(nullOk != null);
-    final AnimatedStaggeredGridState result = context
-        .ancestorStateOfType(const TypeMatcher<AnimatedStaggeredGridState>());
+    final AnimatedStaggeredGridState result =
+        context.findAncestorStateOfType<AnimatedStaggeredGridState>();
     if (nullOk || result != null) return result;
     throw FlutterError(
         'AnimatedStaggeredGrid.of() called with a context that does not contain an AnimatedStaggeredGrid.\n'

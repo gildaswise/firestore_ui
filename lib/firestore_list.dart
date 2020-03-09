@@ -27,6 +27,7 @@ class FirestoreList extends ListBase<DocumentSnapshot>
     this.onValue,
     this.onError,
     this.filter,
+    this.linear = false,
     this.debug = false,
   }) {
     assert(query != null);
@@ -36,8 +37,12 @@ class FirestoreList extends ListBase<DocumentSnapshot>
   /// Database query used to populate the list
   final Stream<QuerySnapshot> query;
 
-  // Whether or not to show debug logs
+  /// Whether or not to show debug logs
   final bool debug;
+
+  /// This will change `onDocumentAdded` call to `.add` instead of `.insert`,
+  /// which might help if your query doesn't care about order changes
+  final bool linear;
 
   static const String TAG = "FIRESTORE_LIST";
 
@@ -139,9 +144,14 @@ class FirestoreList extends ListBase<DocumentSnapshot>
   void _onDocumentAdded(DocumentChange event) {
     try {
       log("Calling _onDocumentAdded for document on index ${event?.newIndex}");
-      final index = event.newIndex >= length ? length : event.newIndex;
-      _snapshots.insert(index, event.document);
-      onDocumentAdded?.call(index, event.document);
+      if (linear ?? false) {
+        _snapshots.add(event.document);
+        onDocumentAdded?.call(_snapshots.length - 1, event.document);
+      } else {
+        final index = event.newIndex >= length ? length : event.newIndex;
+        _snapshots.insert(index, event.document);
+        onDocumentAdded?.call(index, event.document);
+      }
     } catch (error) {
       log("Failed on adding item on index ${event?.newIndex}");
     }
@@ -149,7 +159,7 @@ class FirestoreList extends ListBase<DocumentSnapshot>
 
   void _onDocumentRemoved(DocumentChange event) {
     try {
-      log("Calling _onDocumentRemoved for document on index ${event?.newIndex}");
+      log("Calling _onDocumentRemoved for document on index ${event?.oldIndex}");
       final index = _indexForKey(event.document.documentID);
       if (index > -1) {
         _snapshots.removeAt(index);
