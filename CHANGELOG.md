@@ -1,3 +1,9 @@
+## [1.9.1] - 2020-03-10
+
+* Downgraded `firebase_core` to 0.4.4
+* Downgraded `cloud_firestore` to 0.13.4
+* Those were causing some [issues](https://github.com/flutter/flutter/issues/35670#issuecomment-592769263) while building, will wait before updating again
+
 ## [1.9.0] - 2020-03-09
 
 * Updated `firebase_core` to 0.4.4+2
