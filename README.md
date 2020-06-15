@@ -6,6 +6,13 @@ This project started as a [Pull Request](https://github.com/flutter/plugins/pull
 
 But fear not, my fellow Cloud Firestore users, this is a package that extracted the main code from that PR and now it's available to use!
 
+# Custom parameters
+
+* `bool linear`: This will make it so it just uses `.add` instead of `.insert`, this usually leads to less issues in the order if your list updates linearly (like a chat)
+* `void onLoaded(QuerySnapshot snapshot)`: You can use this to access the most recent `QuerySnapshot` that came from the stream
+* `bool filter(DocumentSnapshot snapshot)`: This allows you to filter out specific snapshots on the rendering phase, return `true` if you want that item to be filtered
+* `bool debug`: Set this to see all logs related to inserting/removing/updating items on any variant of the list
+
 # How to use
 
 All the examples below are from the actual `example` folder, please run that to see how it behaves!
@@ -23,8 +30,8 @@ FirestoreAnimatedList(
         Animation<double> animation,
         int index,
     ) => FadeTransition(
-            opacity: animation,
-            child: MessageListTile(
+        opacity: animation,
+        child: MessageListTile(
             index: index,
             document: snapshot,
             onTap: _removeMessage,

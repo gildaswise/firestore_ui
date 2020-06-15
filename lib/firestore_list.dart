@@ -31,11 +31,11 @@ class FirestoreList extends ListBase<DocumentSnapshot>
     this.debug = false,
   }) {
     assert(query != null);
-    listen(query, _onData, onError: _onError);
+    listen(query.snapshots(), _onData, onError: _onError);
   }
 
-  /// Database query used to populate the list
-  final Stream<QuerySnapshot> query;
+  /// Firestore query used to populate the list
+  final Query query;
 
   /// Whether or not to show debug logs
   final bool debug;
