@@ -11,8 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
   meta: ^1.1.6 
-  firebase_core: 0.4.4
-  cloud_firestore: 0.13.4
+  firebase_core: ^0.4.5
+  cloud_firestore: ^0.13.6
   flutter_staggered_grid_view: 0.3.0
 
 dev_dependencies:
