@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firestore_ui/firestore_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 
 import 'firestore_list.dart';
 
@@ -187,7 +188,9 @@ class FirestoreAnimatedListState extends State<FirestoreAnimatedList> {
 
   @override
   void didUpdateWidget(FirestoreAnimatedList oldWidget) {
-    if (oldWidget.query != widget.query) _updateModel();
+    if (!DeepCollectionEquality.unordered().equals(
+        oldWidget.query.buildArguments(), widget.query.buildArguments()))
+      _updateModel();
     super.didUpdateWidget(oldWidget);
   }
 
