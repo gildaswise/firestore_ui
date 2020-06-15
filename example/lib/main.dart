@@ -89,6 +89,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final PageController _controller =
+      PageController(initialPage: 0, keepPage: true);
+
   int _currentIndex = 1;
 
   CollectionReference get messages => widget.firestore.collection('messages');
@@ -106,91 +109,16 @@ class _MyHomePageState extends State<MyHomePage> {
       });
 
   void _updateIndex(int value) {
-    if (mounted) setState(() => _currentIndex = value);
+    if (mounted) {
+      setState(() => _currentIndex = value);
+      _controller.jumpToPage(_currentIndex);
+    }
   }
 
-  Stream<QuerySnapshot> get query =>
-      widget.firestore.collection('messages').snapshots();
+  Query get query => widget.firestore.collection('messages');
 
   @override
   Widget build(BuildContext context) {
-    Widget body;
-
-    switch (_currentIndex) {
-      case 0:
-        body = FirestoreAnimatedList(
-          key: ValueKey("list"),
-          query: query,
-          onLoaded: (snapshot) =>
-              print("Received on list: ${snapshot.documents.length}"),
-          itemBuilder: (
-            BuildContext context,
-            DocumentSnapshot snapshot,
-            Animation<double> animation,
-            int index,
-          ) =>
-              FadeTransition(
-            opacity: animation,
-            child: MessageListTile(
-              index: index,
-              document: snapshot,
-              onTap: _removeMessage,
-            ),
-          ),
-        );
-        break;
-      case 1:
-        body = FirestoreAnimatedGrid(
-          key: ValueKey("grid"),
-          query: query,
-          onLoaded: (snapshot) =>
-              print("Received on grid: ${snapshot.documents.length}"),
-          crossAxisCount: 2,
-          itemBuilder: (
-            BuildContext context,
-            DocumentSnapshot snapshot,
-            Animation<double> animation,
-            int index,
-          ) {
-            return FadeTransition(
-              opacity: animation,
-              child: MessageGridTile(
-                index: index,
-                document: snapshot,
-                onTap: _removeMessage,
-              ),
-            );
-          },
-        );
-        break;
-      case 2:
-        body = FirestoreAnimatedStaggered(
-          key: ValueKey("staggered"),
-          onLoaded: (snapshot) =>
-              print("Received on staggered: ${snapshot.documents.length}"),
-          staggeredTileBuilder: (int index, DocumentSnapshot snapshot) =>
-              StaggeredTile.count(2, index.isEven ? 2 : 1),
-          crossAxisCount: 4,
-          query: query,
-          itemBuilder: (
-            BuildContext context,
-            DocumentSnapshot snapshot,
-            Animation<double> animation,
-            int index,
-          ) {
-            return FadeTransition(
-              opacity: animation,
-              child: MessageGridTile(
-                index: index,
-                document: snapshot,
-                onTap: _removeMessage,
-              ),
-            );
-          },
-        );
-        break;
-    }
-
     return Scaffold(
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -218,7 +146,77 @@ class _MyHomePageState extends State<MyHomePage> {
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),
-      body: body,
+      body: PageView(
+        controller: _controller,
+        children: <Widget>[
+          FirestoreAnimatedList(
+            key: ValueKey("list"),
+            query: query,
+            onLoaded: (snapshot) =>
+                print("Received on list: ${snapshot.documents.length}"),
+            itemBuilder: (
+              BuildContext context,
+              DocumentSnapshot snapshot,
+              Animation<double> animation,
+              int index,
+            ) =>
+                FadeTransition(
+              opacity: animation,
+              child: MessageListTile(
+                index: index,
+                document: snapshot,
+                onTap: _removeMessage,
+              ),
+            ),
+          ),
+          FirestoreAnimatedGrid(
+            key: ValueKey("grid"),
+            query: query,
+            onLoaded: (snapshot) =>
+                print("Received on grid: ${snapshot.documents.length}"),
+            crossAxisCount: 2,
+            itemBuilder: (
+              BuildContext context,
+              DocumentSnapshot snapshot,
+              Animation<double> animation,
+              int index,
+            ) {
+              return FadeTransition(
+                opacity: animation,
+                child: MessageGridTile(
+                  index: index,
+                  document: snapshot,
+                  onTap: _removeMessage,
+                ),
+              );
+            },
+          ),
+          FirestoreAnimatedStaggered(
+            key: ValueKey("staggered"),
+            onLoaded: (snapshot) =>
+                print("Received on staggered: ${snapshot.documents.length}"),
+            staggeredTileBuilder: (int index, DocumentSnapshot snapshot) =>
+                StaggeredTile.count(2, index.isEven ? 2 : 1),
+            crossAxisCount: 4,
+            query: query,
+            itemBuilder: (
+              BuildContext context,
+              DocumentSnapshot snapshot,
+              Animation<double> animation,
+              int index,
+            ) {
+              return FadeTransition(
+                opacity: animation,
+                child: MessageGridTile(
+                  index: index,
+                  document: snapshot,
+                  onTap: _removeMessage,
+                ),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }

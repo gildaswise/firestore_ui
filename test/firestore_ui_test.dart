@@ -47,7 +47,7 @@ void main() {
       streamController = StreamController<QuerySnapshot>();
 
       list = FirestoreList(
-        query: streamController.stream,
+        query: collectionReference,
         debug: false,
       );
 

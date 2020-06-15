@@ -2,8 +2,6 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firestore_ui/firestore_ui.dart';
 import 'package:flutter/foundation.dart';
@@ -60,7 +58,7 @@ class FirestoreAnimatedStaggered extends StatefulWidget {
         super(key: key);
 
   /// A Firestore query to use to populate the animated list
-  final Stream<QuerySnapshot> query;
+  final Query query;
 
   /// Method that gets called once the stream updates with a new [QuerySnapshot]
   final Function(QuerySnapshot) onLoaded;
@@ -195,8 +193,9 @@ class FirestoreAnimatedStaggeredState
   String _error;
   bool _loaded = false;
 
-  @override
-  void didChangeDependencies() {
+  /// Should only be called without setState, inside @override methods here
+  _updateModel() {
+    _model?.clear();
     _model = FirestoreList(
       query: widget.query,
       onDocumentAdded: _onDocumentAdded,
@@ -209,7 +208,18 @@ class FirestoreAnimatedStaggeredState
       linear: widget.linear,
       debug: widget.debug,
     );
-    super.didChangeDependencies();
+  }
+
+  @override
+  void initState() {
+    _updateModel();
+    super.initState();
+  }
+
+  @override
+  void didUpdateWidget(FirestoreAnimatedStaggered oldWidget) {
+    if (oldWidget.query != widget.query) _updateModel();
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
