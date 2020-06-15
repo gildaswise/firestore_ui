@@ -13,6 +13,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 final String title = 'firestore_ui example';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   final FirebaseApp app = await FirebaseApp.configure(
     name: 'test',
     options: const FirebaseOptions(
@@ -92,7 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final PageController _controller =
       PageController(initialPage: 0, keepPage: true);
 
-  int _currentIndex = 1;
+  int _currentIndex = 0;
 
   CollectionReference get messages => widget.firestore.collection('messages');
 
