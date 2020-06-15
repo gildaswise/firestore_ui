@@ -116,7 +116,10 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Query get query => widget.firestore.collection('messages');
+  /// Feel free to experiment here with query parameters, upon calling `setState` or hot reloading
+  /// the query will automatically update what's on the list. The easiest way to test this is to
+  /// change the limit below, or remove it. The example collection has 500+ elements.
+  Query get query => widget.firestore.collection('messages').limit(15);
 
   @override
   Widget build(BuildContext context) {
@@ -151,6 +154,7 @@ class _MyHomePageState extends State<MyHomePage> {
         controller: _controller,
         children: <Widget>[
           FirestoreAnimatedList(
+            debug: false,
             key: ValueKey("list"),
             query: query,
             onLoaded: (snapshot) =>
