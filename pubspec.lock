@@ -44,7 +44,7 @@ packages:
     source: hosted
     version: "0.13.6"
   cloud_firestore_platform_interface:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: cloud_firestore_platform_interface
       url: "https://pub.dartlang.org"
@@ -93,7 +93,7 @@ packages:
     source: hosted
     version: "0.4.5"
   firebase_core_platform_interface:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: firebase_core_platform_interface
       url: "https://pub.dartlang.org"
