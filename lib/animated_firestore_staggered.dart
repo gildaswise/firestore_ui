@@ -220,8 +220,7 @@ class FirestoreAnimatedStaggeredState
   @override
   void didUpdateWidget(FirestoreAnimatedStaggered oldWidget) {
     if (!DeepCollectionEquality.unordered().equals(
-        oldWidget.query.buildArguments(), widget.query.buildArguments()))
-      _updateModel();
+        oldWidget.query.parameters, widget.query.parameters)) _updateModel();
     super.didUpdateWidget(oldWidget);
   }
 

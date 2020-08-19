@@ -189,8 +189,7 @@ class FirestoreAnimatedListState extends State<FirestoreAnimatedList> {
   @override
   void didUpdateWidget(FirestoreAnimatedList oldWidget) {
     if (!DeepCollectionEquality.unordered().equals(
-        oldWidget.query.buildArguments(), widget.query.buildArguments()))
-      _updateModel();
+        oldWidget.query.parameters, widget.query.parameters)) _updateModel();
     super.didUpdateWidget(oldWidget);
   }
 
