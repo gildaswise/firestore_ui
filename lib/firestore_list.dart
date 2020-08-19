@@ -2,7 +2,6 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import 'dart:async';
 import 'dart:collection';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -102,17 +101,16 @@ class FirestoreList extends ListBase<DocumentSnapshot>
 
   int _indexForKey(String key) {
     assert(key != null && key.isNotEmpty);
-    return _snapshots
-        .indexWhere((DocumentSnapshot item) => item.documentID == key);
+    return _snapshots.indexWhere((DocumentSnapshot item) => item.id == key);
   }
 
   void _onChange(List<DocumentChange> documentChanges) {
     if (documentChanges != null && documentChanges.isNotEmpty) {
       for (DocumentChange change in documentChanges) {
-        final isHidden = filter?.call(change.document) ?? false;
-        log("Document ${change.document.documentID} is hidden: $isHidden");
+        final isHidden = filter?.call(change.doc) ?? false;
+        log("Document ${change.doc.id} is hidden: $isHidden");
         if (isHidden) {
-          log("Document ${change.document.documentID} filtered out of list");
+          log("Document ${change.doc.id} filtered out of list");
         } else {
           switch (change.type) {
             case DocumentChangeType.added:
@@ -125,7 +123,7 @@ class FirestoreList extends ListBase<DocumentSnapshot>
               _onDocumentRemoved(change);
               break;
           }
-          _onValue(change.document);
+          _onValue(change.doc);
         }
       }
     } else {
@@ -135,22 +133,22 @@ class FirestoreList extends ListBase<DocumentSnapshot>
 
   void _onData(QuerySnapshot snapshot) {
     log("Calling _onData for a new QuerySnapshot");
-    log("QuerySnapshot.documents: ${snapshot?.documents?.length}");
-    log("QuerySnapshot.documentChanges: ${snapshot?.documentChanges?.length}");
+    log("QuerySnapshot.documents: ${snapshot?.docs?.length}");
+    log("QuerySnapshot.documentChanges: ${snapshot?.docChanges?.length}");
     onLoaded?.call(snapshot);
-    _onChange(snapshot.documentChanges);
+    _onChange(snapshot.docChanges);
   }
 
   void _onDocumentAdded(DocumentChange event) {
     try {
       log("Calling _onDocumentAdded for document on index ${event?.newIndex}");
       if (linear ?? false) {
-        _snapshots.add(event.document);
-        onDocumentAdded?.call(_snapshots.length - 1, event.document);
+        _snapshots.add(event.doc);
+        onDocumentAdded?.call(_snapshots.length - 1, event.doc);
       } else {
         final index = event.newIndex >= length ? length : event.newIndex;
-        _snapshots.insert(index, event.document);
-        onDocumentAdded?.call(index, event.document);
+        _snapshots.insert(index, event.doc);
+        onDocumentAdded?.call(index, event.doc);
       }
     } catch (error) {
       log("Failed on adding item on index ${event?.newIndex}");
@@ -160,10 +158,10 @@ class FirestoreList extends ListBase<DocumentSnapshot>
   void _onDocumentRemoved(DocumentChange event) {
     try {
       log("Calling _onDocumentRemoved for document on index ${event?.oldIndex}");
-      final index = _indexForKey(event.document.documentID);
+      final index = _indexForKey(event.doc.id);
       if (index > -1) {
         _snapshots.removeAt(index);
-        onDocumentRemoved?.call(index, event.document);
+        onDocumentRemoved?.call(index, event.doc);
       } else {
         log("Failed on removing item on index $index");
       }
@@ -173,16 +171,16 @@ class FirestoreList extends ListBase<DocumentSnapshot>
   }
 
   void _onDocumentChanged(DocumentChange event) {
-    final int index = _indexForKey(event.document.documentID);
+    final int index = _indexForKey(event.doc.id);
     if (index > -1) {
       log("Calling _onDocumentChanged for document on index ${event?.newIndex}");
-      _snapshots[index] = event.document;
-      onDocumentChanged?.call(index, event.document);
+      _snapshots[index] = event.doc;
+      onDocumentChanged?.call(index, event.doc);
     }
   }
 
   DocumentSnapshot _onValue(DocumentSnapshot document) {
-    log("Calling onValue for document ${document?.documentID}");
+    log("Calling onValue for document ${document?.id}");
     onValue?.call(document);
     return document;
   }

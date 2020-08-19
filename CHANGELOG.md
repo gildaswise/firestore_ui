@@ -1,3 +1,8 @@
+## [1.2.0] - 2020-08-19
+
+* Updated `firebase_core` to 0.5.0
+* Updated `cloud_firestore` to 0.14.0
+
 ## [1.10.0] - 2020-06-15
 
 * **BREAKING CHANGE**: Changed `query` parameter from `Stream<QuerySnapshot>` to the proper `cloud_firestore.Query` type to add support for `didUpdateWidget`; so basically, just remove `.snapshots()`.

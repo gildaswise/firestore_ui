@@ -19,29 +19,30 @@ void main() {
     final List<MethodCall> log = <MethodCall>[];
     FirestoreList list;
     FirebaseApp app;
-    Firestore firestore;
+    FirebaseFirestore firestore;
     CollectionReference collectionReference;
     const Map<String, dynamic> kMockDocumentSnapshotData = <String, dynamic>{
       '1': 2
     };
 
     setUp(() async {
-      MethodChannelFirebaseCore.channel.setMockMethodCallHandler(
+      MethodChannelFirebase.channel.setMockMethodCallHandler(
         (MethodCall methodCall) async {},
       );
-      MethodChannelFirestore.channel.setMockMethodCallHandler(
+      MethodChannelFirebaseFirestore.channel.setMockMethodCallHandler(
         (call) async {},
       );
 
-      app = await FirebaseApp.configure(
+      app = await Firebase.initializeApp(
         name: 'testApp',
-        options: const FirebaseOptions(
-          googleAppID: '1:1234567890:ios:42424242424242',
-          gcmSenderID: '1234567890',
+        options: FirebaseOptions(
+          appId: '1:1234567890:ios:42424242424242',
+          messagingSenderId: '1234567890',
         ),
       );
 
-      firestore = Firestore(app: app);
+      firestore = FirebaseFirestore.instanceFor(app: app);
+
       collectionReference = firestore.collection('foo');
 
       streamController = StreamController<QuerySnapshot>();
@@ -51,7 +52,7 @@ void main() {
         debug: false,
       );
 
-      MethodChannelFirestore.channel
+      MethodChannelFirebaseFirestore.channel
           .setMockMethodCallHandler((MethodCall methodCall) async {
         log.add(methodCall);
         switch (methodCall.method) {
@@ -61,8 +62,8 @@ void main() {
             // Otherwise the first request didn't have the time to finish.
             Future<void>.delayed(Duration.zero).then((_) {
               defaultBinaryMessenger.handlePlatformMessage(
-                MethodChannelFirestore.channel.name,
-                MethodChannelFirestore.channel.codec.encodeMethodCall(
+                MethodChannelFirebaseFirestore.channel.name,
+                MethodChannelFirebaseFirestore.channel.codec.encodeMethodCall(
                   MethodCall('QuerySnapshot', <String, dynamic>{
                     'app': app.name,
                     'handle': handle,
@@ -88,8 +89,8 @@ void main() {
             // Otherwise the first request didn't have the time to finish.
             Future<void>.delayed(Duration.zero).then((_) {
               defaultBinaryMessenger.handlePlatformMessage(
-                MethodChannelFirestore.channel.name,
-                MethodChannelFirestore.channel.codec.encodeMethodCall(
+                MethodChannelFirebaseFirestore.channel.name,
+                MethodChannelFirebaseFirestore.channel.codec.encodeMethodCall(
                   MethodCall('DocumentSnapshot', <String, dynamic>{
                     'handle': handle,
                     'path': methodCall.arguments['path'],
