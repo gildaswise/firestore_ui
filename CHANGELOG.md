@@ -1,4 +1,4 @@
-## [1.2.0] - 2020-08-19
+## [1.11.0] - 2020-08-19
 
 * Updated `firebase_core` to 0.5.0
 * Updated `cloud_firestore` to 0.14.0
