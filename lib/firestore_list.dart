@@ -6,13 +6,14 @@ import 'dart:collection';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firestore_ui/stream_subscriber_mixin.dart';
+import 'package:flutter/foundation.dart';
 import 'package:meta/meta.dart';
 
 typedef void DocumentCallback(int index, DocumentSnapshot snapshot);
 typedef bool FilterCallback(DocumentSnapshot snapshot);
 typedef void ValueCallback(DocumentSnapshot snapshot);
 typedef void QueryCallback(QuerySnapshot querySnapshot);
-typedef void ErrorCallback(Error error);
+typedef void ErrorCallback(Exception error);
 
 /// Handles [DocumentChange] events, errors and streaming
 class FirestoreList extends ListBase<DocumentSnapshot>
@@ -30,7 +31,7 @@ class FirestoreList extends ListBase<DocumentSnapshot>
     this.debug = false,
   }) {
     assert(query != null);
-    listen(query.snapshots(), _onData, onError: _onError);
+    listen(query.snapshots(), _onData, onError: (Object error) => _onError(error));
   }
 
   /// Firestore query used to populate the list
@@ -185,8 +186,8 @@ class FirestoreList extends ListBase<DocumentSnapshot>
     return document;
   }
 
-  void _onError(Object o) {
-    final Error error = o;
-    onError?.call(error);
+  void _onError(Exception exception) {
+    onError?.call(exception);
+    if (debug) debugPrint(exception?.toString());
   }
 }

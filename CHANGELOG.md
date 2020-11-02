@@ -1,3 +1,11 @@
+## [1.12.0] - 2020-11-02
+
+* Updated `firebase_core` to 0.5.1
+* Updated `cloud_firestore` to 0.14.2
+* Updated `dart_sdk` to 2.10+
+* Fixed `onError`, now properly shows if `debug: true`
+* Fixed `defaultChild` behaviour
+
 ## [1.11.0] - 2020-08-19
 
 * Updated `firebase_core` to 0.5.0

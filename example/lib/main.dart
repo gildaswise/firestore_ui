@@ -4,8 +4,7 @@
 
 import 'dart:async';
 
-import 'package:firebase_core/firebase_core.dart'
-    show Firebase, FirebaseApp, FirebaseOptions;
+import 'package:firebase_core/firebase_core.dart' show Firebase;
 import 'package:firestore_ui/firestore_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -14,18 +13,8 @@ final String title = 'firestore_ui example';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final FirebaseApp app = await Firebase.initializeApp(
-    name: 'test',
-    options: FirebaseOptions(
-      appId: '1:79601577497:ios:5f2bcc6ba8cecddd',
-      messagingSenderId: '79601577497',
-      apiKey: 'AIzaSyArgmRGfB5kiQT6CunAOmKRVKEsxKmy6YI-G72PVU',
-      projectId: 'flutter-firestore',
-    ),
-  );
-  final FirebaseFirestore firestore = FirebaseFirestore.instanceFor(app: app);
-
-  runApp(MaterialApp(title: title, home: MyHomePage(firestore: firestore)));
+  await Firebase.initializeApp();
+  runApp(MaterialApp(title: title, home: MyHomePage(firestore: FirebaseFirestore.instance)));
 }
 
 class MessageListTile extends StatelessWidget {
@@ -130,15 +119,15 @@ class _MyHomePageState extends State<MyHomePage> {
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.filter_1),
-            title: Text("List"),
+            label: "List",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.filter_2),
-            title: Text("Grid"),
+            label: "Grid",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.filter_3),
-            title: Text("Staggered"),
+            label: "Staggered",
           ),
         ],
       ),
