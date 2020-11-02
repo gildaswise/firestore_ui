@@ -17,6 +17,8 @@ typedef Widget FirestoreAnimatedGridItemBuilder(
   int index,
 );
 
+typedef Widget ErrorChildBuilder(Exception exception);
+
 /// An AnimatedList widget that is bound to a query
 class FirestoreAnimatedGrid extends StatefulWidget {
   /// Creates a scrolling container that animates items when they are inserted or removed.
@@ -83,7 +85,7 @@ class FirestoreAnimatedGrid extends StatefulWidget {
 
   /// A widget to display if an error ocurred. Defaults to a
   /// centered [Icon] with `Icons.error` and the error itsef;
-  final Widget errorChild;
+  final ErrorChildBuilder errorChild;
 
   /// A widget to display if the query returns empty. Defaults to a
   /// `Container()`;
@@ -179,7 +181,7 @@ class FirestoreAnimatedGridState extends State<FirestoreAnimatedGrid> {
   final GlobalKey<AnimatedGridState> _animatedListKey =
       GlobalKey<AnimatedGridState>();
   FirestoreList _model;
-  String _error;
+  Exception _error;
   bool _loaded = false;
 
   /// Should only be called without setState, inside @override methods here
@@ -219,10 +221,10 @@ class FirestoreAnimatedGridState extends State<FirestoreAnimatedGrid> {
     super.dispose();
   }
 
-  void _onError(Error error) {
+  void _onError(Exception exception) {
     if (mounted) {
       setState(() {
-        error = error;
+        _error = exception;
       });
     }
   }
@@ -290,11 +292,11 @@ class FirestoreAnimatedGridState extends State<FirestoreAnimatedGrid> {
 
   @override
   Widget build(BuildContext context) {
-    if (_loaded && _model.isEmpty) {
-      return widget.emptyChild ?? Container();
+    if (_model.isEmpty) {
+      return _loaded ? (widget.emptyChild ?? Container()) : (widget.defaultChild ?? const Center(child: CircularProgressIndicator()));
     }
 
-    if (_error != null && _error.isNotEmpty) {
+    if (_error != null) {
       return widget.errorChild ?? const Center(child: Icon(Icons.error));
     }
 

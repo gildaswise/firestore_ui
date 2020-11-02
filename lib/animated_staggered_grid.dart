@@ -306,7 +306,7 @@ class AnimatedStaggeredGridState extends State<AnimatedStaggeredGrid>
     }
 
     final AnimationController controller =
-        AnimationController(duration: duration, vsync: this);
+        AnimationController(duration: duration);
     final _ActiveItem incomingItem =
         _ActiveItem.incoming(controller, itemIndex);
     setState(() {
@@ -347,7 +347,7 @@ class AnimatedStaggeredGridState extends State<AnimatedStaggeredGrid>
     final _ActiveItem incomingItem =
         _removeActiveItemAt(_incomingItems, itemIndex);
     final AnimationController controller = incomingItem?.controller ??
-        AnimationController(duration: duration, value: 1.0, vsync: this);
+        AnimationController(duration: duration, value: 1.0);
     final _ActiveItem outgoingItem =
         _ActiveItem.outgoing(controller, itemIndex, builder);
     setState(() {

@@ -160,7 +160,7 @@ class FirestoreAnimatedListState extends State<FirestoreAnimatedList> {
   final GlobalKey<AnimatedListState> _animatedListKey =
       GlobalKey<AnimatedListState>();
   FirestoreList _model;
-  String _error;
+  Exception _error;
   bool _loaded = false;
 
   /// Should only be called without setState, inside @override methods here
@@ -200,14 +200,14 @@ class FirestoreAnimatedListState extends State<FirestoreAnimatedList> {
     super.dispose();
   }
 
-  void _onError(Error error) {
+   void _onError(Exception exception) {
     if (mounted) {
       setState(() {
-        error = error;
+        _error = exception;
       });
     }
   }
-
+  
   void _onDocumentAdded(int index, DocumentSnapshot snapshot) {
     // if (!_loaded) {
     //   return; // AnimatedList is not created yet
@@ -271,11 +271,11 @@ class FirestoreAnimatedListState extends State<FirestoreAnimatedList> {
 
   @override
   Widget build(BuildContext context) {
-    if (_loaded && _model.isEmpty) {
-      return widget.emptyChild ?? Container();
+     if (_model.isEmpty) {
+      return _loaded ? (widget.emptyChild ?? Container()) : (widget.defaultChild ?? const Center(child: CircularProgressIndicator()));
     }
 
-    if (_error != null && _error.isNotEmpty) {
+    if (_error != null) {
       return widget.errorChild ?? const Center(child: Icon(Icons.error));
     }
 
