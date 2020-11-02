@@ -304,7 +304,7 @@ class AnimatedGridState extends State<AnimatedGrid>
     }
 
     final AnimationController controller =
-        AnimationController(duration: duration);
+        AnimationController(duration: duration, vsync: this);
     final _ActiveItem incomingItem =
         _ActiveItem.incoming(controller, itemIndex);
     setState(() {
@@ -345,7 +345,7 @@ class AnimatedGridState extends State<AnimatedGrid>
     final _ActiveItem incomingItem =
         _removeActiveItemAt(_incomingItems, itemIndex);
     final AnimationController controller = incomingItem?.controller ??
-        AnimationController(duration: duration, value: 1.0);
+        AnimationController(duration: duration, value: 1.0, vsync: this);
     final _ActiveItem outgoingItem =
         _ActiveItem.outgoing(controller, itemIndex, builder);
     setState(() {

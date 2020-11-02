@@ -6,6 +6,7 @@ import 'dart:collection';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firestore_ui/stream_subscriber_mixin.dart';
+import 'package:flutter/foundation.dart';
 import 'package:meta/meta.dart';
 
 typedef void DocumentCallback(int index, DocumentSnapshot snapshot);
@@ -187,5 +188,6 @@ class FirestoreList extends ListBase<DocumentSnapshot>
 
   void _onError(Exception exception) {
     onError?.call(exception);
+    if (debug) debugPrint(exception?.toString());
   }
 }
