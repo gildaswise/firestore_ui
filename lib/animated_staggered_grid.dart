@@ -28,8 +28,8 @@ class _ActiveItem implements Comparable<_ActiveItem> {
       : controller = null,
         removedItemBuilder = null;
 
-  final AnimationController controller;
-  final AnimatedStaggeredGridRemovedItemBuilder removedItemBuilder;
+  final AnimationController? controller;
+  final AnimatedStaggeredGridRemovedItemBuilder? removedItemBuilder;
   int itemIndex;
 
   @override
@@ -46,10 +46,10 @@ class _ActiveItem implements Comparable<_ActiveItem> {
 class AnimatedStaggeredGrid extends StatefulWidget {
   /// Creates a scrolling container that animates items when they are inserted or removed.
   const AnimatedStaggeredGrid({
-    Key key,
-    @required this.itemBuilder,
-    @required this.crossAxisCount,
-    @required this.staggeredTileBuilder,
+    Key? key,
+    required this.itemBuilder,
+    required this.crossAxisCount,
+    required this.staggeredTileBuilder,
     this.mainAxisSpacing = 4.0,
     this.crossAxisSpacing = 4.0,
     this.initialItemCount = 0,
@@ -60,12 +60,10 @@ class AnimatedStaggeredGrid extends StatefulWidget {
     this.physics,
     this.shrinkWrap = false,
     this.padding,
-  })  : assert(itemBuilder != null),
-        assert(staggeredTileBuilder != null),
-        assert(initialItemCount != null && initialItemCount >= 0),
-        assert(crossAxisCount != null && crossAxisCount > 0),
-        assert(mainAxisSpacing != null && mainAxisSpacing >= 0),
-        assert(crossAxisSpacing != null && crossAxisSpacing >= 0),
+  })  : assert(initialItemCount >= 0),
+        assert(crossAxisCount > 0),
+        assert(mainAxisSpacing >= 0),
+        assert(crossAxisSpacing >= 0),
         super(key: key);
 
   /// Called, as needed, to build list item widgets.
@@ -132,7 +130,7 @@ class AnimatedStaggeredGrid extends StatefulWidget {
   /// [ScrollController.keepScrollOffset]). It can be used to read the current
   /// scroll position (see [ScrollController.offset]), or change it (see
   /// [ScrollController.animateTo]).
-  final ScrollController controller;
+  final ScrollController? controller;
 
   /// Whether this is the primary scroll view associated with the parent
   /// [PrimaryScrollController].
@@ -142,7 +140,7 @@ class AnimatedStaggeredGrid extends StatefulWidget {
   ///
   /// Defaults to true when [scrollDirection] is [Axis.vertical] and
   /// [controller] is null.
-  final bool primary;
+  final bool? primary;
 
   /// How the scroll view should respond to user input.
   ///
@@ -150,7 +148,7 @@ class AnimatedStaggeredGrid extends StatefulWidget {
   /// user stops dragging the scroll view.
   ///
   /// Defaults to matching platform conventions.
-  final ScrollPhysics physics;
+  final ScrollPhysics? physics;
 
   /// Whether the extent of the scroll view in the [scrollDirection] should be
   /// determined by the contents being viewed.
@@ -169,7 +167,7 @@ class AnimatedStaggeredGrid extends StatefulWidget {
   final bool shrinkWrap;
 
   /// The amount of space by which to inset the children.
-  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry? padding;
 
   /// The state from the closest instance of this class that encloses the given context.
   ///
@@ -179,11 +177,9 @@ class AnimatedStaggeredGrid extends StatefulWidget {
   /// ```dart
   /// AnimatedStaggeredGridState AnimatedStaggeredGrid = AnimatedStaggeredGrid.of(context);
   /// ```
-  static AnimatedStaggeredGridState of(BuildContext context,
+  static AnimatedStaggeredGridState? of(BuildContext context,
       {bool nullOk = false}) {
-    assert(context != null);
-    assert(nullOk != null);
-    final AnimatedStaggeredGridState result =
+    final AnimatedStaggeredGridState? result =
         context.findAncestorStateOfType<AnimatedStaggeredGridState>();
     if (nullOk || result != null) return result;
     throw FlutterError(
@@ -239,17 +235,17 @@ class AnimatedStaggeredGridState extends State<AnimatedStaggeredGrid>
 
   @override
   void dispose() {
-    for (_ActiveItem item in _incomingItems) item.controller.dispose();
-    for (_ActiveItem item in _outgoingItems) item.controller.dispose();
+    for (_ActiveItem item in _incomingItems) item.controller!.dispose();
+    for (_ActiveItem item in _outgoingItems) item.controller!.dispose();
     super.dispose();
   }
 
-  _ActiveItem _removeActiveItemAt(List<_ActiveItem> items, int itemIndex) {
+  _ActiveItem? _removeActiveItemAt(List<_ActiveItem> items, int itemIndex) {
     final int i = binarySearch(items, _ActiveItem.index(itemIndex));
     return i == -1 ? null : items.removeAt(i);
   }
 
-  _ActiveItem _activeItemAt(List<_ActiveItem> items, int itemIndex) {
+  _ActiveItem? _activeItemAt(List<_ActiveItem> items, int itemIndex) {
     final int i = binarySearch(items, _ActiveItem.index(itemIndex));
     return i == -1 ? null : items[i];
   }
@@ -290,8 +286,7 @@ class AnimatedStaggeredGridState extends State<AnimatedStaggeredGrid>
   /// it increases the length of the list by one and shifts all items at or
   /// after [index] towards the end of the list.
   void insertItem(int index, {Duration duration = _kDuration}) {
-    assert(index != null && index >= 0);
-    assert(duration != null);
+    assert(index >= 0);
 
     final int itemIndex = _indexToItemIndex(index);
     assert(itemIndex >= 0 && itemIndex <= _itemsCount);
@@ -317,8 +312,8 @@ class AnimatedStaggeredGridState extends State<AnimatedStaggeredGrid>
     });
 
     controller.forward().then<void>((_) {
-      _removeActiveItemAt(_incomingItems, incomingItem.itemIndex)
-          .controller
+      _removeActiveItemAt(_incomingItems, incomingItem.itemIndex)!
+          .controller!
           .dispose();
     });
   }
@@ -336,15 +331,13 @@ class AnimatedStaggeredGridState extends State<AnimatedStaggeredGrid>
   /// before [index] towards the beginning of the list.
   void removeItem(int index, AnimatedStaggeredGridRemovedItemBuilder builder,
       {Duration duration = _kDuration}) {
-    assert(index != null && index >= 0);
-    assert(builder != null);
-    assert(duration != null);
+    assert(index >= 0);
 
     final int itemIndex = _indexToItemIndex(index);
     assert(itemIndex >= 0 && itemIndex < _itemsCount);
     assert(_activeItemAt(_outgoingItems, itemIndex) == null);
 
-    final _ActiveItem incomingItem =
+    final _ActiveItem? incomingItem =
         _removeActiveItemAt(_incomingItems, itemIndex);
     final AnimationController controller = incomingItem?.controller ??
         AnimationController(duration: duration, value: 1.0, vsync: this);
@@ -357,8 +350,8 @@ class AnimatedStaggeredGridState extends State<AnimatedStaggeredGrid>
     });
 
     controller.reverse().then<void>((void value) {
-      _removeActiveItemAt(_outgoingItems, outgoingItem.itemIndex)
-          .controller
+      _removeActiveItemAt(_outgoingItems, outgoingItem.itemIndex)!
+          .controller!
           .dispose();
 
       // Decrement the incoming and outgoing item indices to account
@@ -377,12 +370,12 @@ class AnimatedStaggeredGridState extends State<AnimatedStaggeredGrid>
   }
 
   Widget _itemBuilder(BuildContext context, int itemIndex) {
-    final _ActiveItem outgoingItem = _activeItemAt(_outgoingItems, itemIndex);
+    final _ActiveItem? outgoingItem = _activeItemAt(_outgoingItems, itemIndex);
     if (outgoingItem != null)
-      return outgoingItem.removedItemBuilder(
-          context, outgoingItem.controller.view);
+      return outgoingItem.removedItemBuilder!(
+          context, outgoingItem.controller!.view);
 
-    final _ActiveItem incomingItem = _activeItemAt(_incomingItems, itemIndex);
+    final _ActiveItem? incomingItem = _activeItemAt(_incomingItems, itemIndex);
     final Animation<double> animation =
         incomingItem?.controller?.view ?? kAlwaysCompleteAnimation;
     return widget.itemBuilder(context, _itemIndexToIndex(itemIndex), animation);
