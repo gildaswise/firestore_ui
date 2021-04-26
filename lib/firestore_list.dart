@@ -7,7 +7,6 @@ import 'dart:collection';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firestore_ui/stream_subscriber_mixin.dart';
 import 'package:flutter/foundation.dart';
-import 'package:meta/meta.dart';
 
 typedef void DocumentCallback(int index, DocumentSnapshot snapshot);
 typedef bool FilterCallback(DocumentSnapshot snapshot);
@@ -16,10 +15,10 @@ typedef void QueryCallback(QuerySnapshot querySnapshot);
 typedef void ErrorCallback(Exception error);
 
 /// Handles [DocumentChange] events, errors and streaming
-class FirestoreList extends ListBase<DocumentSnapshot>
+class FirestoreList extends ListBase<DocumentSnapshot?>
     with StreamSubscriberMixin<QuerySnapshot> {
   FirestoreList({
-    @required this.query,
+    required this.query,
     this.onDocumentAdded,
     this.onDocumentRemoved,
     this.onDocumentChanged,
@@ -31,11 +30,12 @@ class FirestoreList extends ListBase<DocumentSnapshot>
     this.debug = false,
   }) {
     assert(query != null);
-    listen(query.snapshots(), _onData, onError: (Object error) => _onError(error));
+    listen(query!.snapshots(), _onData,
+        onError: (Object error) => _onError(error as Exception));
   }
 
   /// Firestore query used to populate the list
-  final Query query;
+  final Query? query;
 
   /// Whether or not to show debug logs
   final bool debug;
@@ -48,25 +48,25 @@ class FirestoreList extends ListBase<DocumentSnapshot>
 
   /// Called before any operation with a DocumentSnapshot;
   /// If it returns `true`, then dismisses that DocumentSnapshot from the list
-  final FilterCallback filter;
+  final FilterCallback? filter;
 
   /// Called when the Document has been added
-  final DocumentCallback onDocumentAdded;
+  final DocumentCallback? onDocumentAdded;
 
   /// Called when the Document has been removed
-  final DocumentCallback onDocumentRemoved;
+  final DocumentCallback? onDocumentRemoved;
 
   /// Called when the Document has changed
-  final DocumentCallback onDocumentChanged;
+  final DocumentCallback? onDocumentChanged;
 
   /// Called when the data of the list has finished loading
-  final ValueCallback onValue;
+  final ValueCallback? onValue;
 
   /// Called when the full list has been loaded
-  final QueryCallback onLoaded;
+  final QueryCallback? onLoaded;
 
   /// Called when an error is reported (e.g. permission denied)
-  final ErrorCallback onError;
+  final ErrorCallback? onError;
 
   // ListBase implementation
   final List<DocumentSnapshot> _snapshots = <DocumentSnapshot>[];
@@ -80,13 +80,13 @@ class FirestoreList extends ListBase<DocumentSnapshot>
   }
 
   @override
-  DocumentSnapshot operator [](int index) =>
+  DocumentSnapshot? operator [](int index) =>
       _snapshots.isEmpty || index < 0 || index >= length
           ? null
           : _snapshots[index];
 
   @override
-  void operator []=(int index, DocumentSnapshot value) {
+  void operator []=(int index, DocumentSnapshot? value) {
     throw UnsupportedError("List cannot be modified.");
   }
 
@@ -101,12 +101,12 @@ class FirestoreList extends ListBase<DocumentSnapshot>
   }
 
   int _indexForKey(String key) {
-    assert(key != null && key.isNotEmpty);
+    assert(key.isNotEmpty);
     return _snapshots.indexWhere((DocumentSnapshot item) => item.id == key);
   }
 
   void _onChange(List<DocumentChange> documentChanges) {
-    if (documentChanges != null && documentChanges.isNotEmpty) {
+    if (documentChanges.isNotEmpty) {
       for (DocumentChange change in documentChanges) {
         final isHidden = filter?.call(change.doc) ?? false;
         log("Document ${change.doc.id} is hidden: $isHidden");
@@ -134,16 +134,16 @@ class FirestoreList extends ListBase<DocumentSnapshot>
 
   void _onData(QuerySnapshot snapshot) {
     log("Calling _onData for a new QuerySnapshot");
-    log("QuerySnapshot.documents: ${snapshot?.docs?.length}");
-    log("QuerySnapshot.documentChanges: ${snapshot?.docChanges?.length}");
+    log("QuerySnapshot.documents: ${snapshot.docs.length}");
+    log("QuerySnapshot.documentChanges: ${snapshot.docChanges.length}");
     onLoaded?.call(snapshot);
     _onChange(snapshot.docChanges);
   }
 
   void _onDocumentAdded(DocumentChange event) {
     try {
-      log("Calling _onDocumentAdded for document on index ${event?.newIndex}");
-      if (linear ?? false) {
+      log("Calling _onDocumentAdded for document on index ${event.newIndex}");
+      if (linear) {
         _snapshots.add(event.doc);
         onDocumentAdded?.call(_snapshots.length - 1, event.doc);
       } else {
@@ -152,13 +152,13 @@ class FirestoreList extends ListBase<DocumentSnapshot>
         onDocumentAdded?.call(index, event.doc);
       }
     } catch (error) {
-      log("Failed on adding item on index ${event?.newIndex}");
+      log("Failed on adding item on index ${event.newIndex}");
     }
   }
 
   void _onDocumentRemoved(DocumentChange event) {
     try {
-      log("Calling _onDocumentRemoved for document on index ${event?.oldIndex}");
+      log("Calling _onDocumentRemoved for document on index ${event.oldIndex}");
       final index = _indexForKey(event.doc.id);
       if (index > -1) {
         _snapshots.removeAt(index);
@@ -167,27 +167,27 @@ class FirestoreList extends ListBase<DocumentSnapshot>
         log("Failed on removing item on index $index");
       }
     } catch (error) {
-      log("Failed on removing item on index ${event?.oldIndex}");
+      log("Failed on removing item on index ${event.oldIndex}");
     }
   }
 
   void _onDocumentChanged(DocumentChange event) {
     final int index = _indexForKey(event.doc.id);
     if (index > -1) {
-      log("Calling _onDocumentChanged for document on index ${event?.newIndex}");
+      log("Calling _onDocumentChanged for document on index ${event.newIndex}");
       _snapshots[index] = event.doc;
       onDocumentChanged?.call(index, event.doc);
     }
   }
 
   DocumentSnapshot _onValue(DocumentSnapshot document) {
-    log("Calling onValue for document ${document?.id}");
+    log("Calling onValue for document ${document.id}");
     onValue?.call(document);
     return document;
   }
 
   void _onError(Exception exception) {
     onError?.call(exception);
-    if (debug) debugPrint(exception?.toString());
+    if (debug) debugPrint(exception.toString());
   }
 }

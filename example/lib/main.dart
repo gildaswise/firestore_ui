@@ -11,52 +11,66 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 final String title = 'firestore_ui example';
 
+typedef OnSnapshot = Function(DocumentSnapshot?);
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(MaterialApp(title: title, home: MyHomePage(firestore: FirebaseFirestore.instance)));
+  runApp(MaterialApp(
+      title: title, home: MyHomePage(firestore: FirebaseFirestore.instance)));
 }
 
 class MessageListTile extends StatelessWidget {
   final int index;
-  final DocumentSnapshot document;
-  final Function(DocumentSnapshot) onTap;
+  final DocumentSnapshot? document;
+  final OnSnapshot? onTap;
 
   const MessageListTile({
-    Key key,
-    this.index,
-    this.document,
-    this.onTap,
+    Key? key,
+    required this.index,
+    required this.document,
+    required this.onTap,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    String message = 'No message retrieved!';
+    if (document != null) {
+      final data = document!.data();
+      if (data != null) {
+        final receivedMessage = data['message'];
+        if (receivedMessage != null) message = receivedMessage;
+      }
+    }
+
     return ListTile(
-      title: Text(document != null
-          ? "${document.data()['message']}"
-          : 'No message retrieved'),
+      title: Text(message),
       subtitle: Text('Message ${this.index + 1}'),
-      onTap: () => onTap(this.document),
+      onTap: document != null && onTap != null
+          ? () => onTap!.call(this.document!)
+          : null,
     );
   }
 }
 
 class MessageGridTile extends StatelessWidget {
   final int index;
-  final DocumentSnapshot document;
-  final Function(DocumentSnapshot) onTap;
+  final DocumentSnapshot? document;
+  final OnSnapshot? onTap;
 
   const MessageGridTile({
-    Key key,
-    this.index,
-    this.document,
-    this.onTap,
+    Key? key,
+    required this.index,
+    required this.document,
+    required this.onTap,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => onTap?.call(document),
+      onTap: document != null && onTap != null
+          ? () => onTap!.call(this.document!)
+          : null,
       child: Container(
         color: Colors.green,
         child: Center(
@@ -73,7 +87,7 @@ class MessageGridTile extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   final FirebaseFirestore firestore;
 
-  MyHomePage({Key key, this.firestore}) : super(key: key);
+  MyHomePage({Key? key, required this.firestore}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -87,16 +101,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
   CollectionReference get messages => widget.firestore.collection('messages');
 
-  Future<void> _addMessage() async =>
-      await messages.doc().set(<String, dynamic>{
+  _addMessage() => messages.doc().set(<String, dynamic>{
         'message': 'Hello world!',
       });
 
-  Future<void> _removeMessage(DocumentSnapshot snapshot) async =>
-      await widget.firestore.runTransaction((transaction) async {
+  _removeMessage(DocumentSnapshot? snapshot) {
+    if (snapshot != null)
+      widget.firestore.runTransaction((transaction) async {
         transaction.delete(snapshot.reference);
-      }).catchError(
-          (exception, stacktrace) => print("Couldn't remove item: $exception"));
+      }).catchError((exception, stacktrace) {
+        print("Couldn't remove item: $exception");
+      });
+  }
 
   void _updateIndex(int value) {
     if (mounted) {
@@ -150,7 +166,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 print("Received on list: ${snapshot.docs.length}"),
             itemBuilder: (
               BuildContext context,
-              DocumentSnapshot snapshot,
+              DocumentSnapshot? snapshot,
               Animation<double> animation,
               int index,
             ) =>
@@ -171,7 +187,7 @@ class _MyHomePageState extends State<MyHomePage> {
             crossAxisCount: 2,
             itemBuilder: (
               BuildContext context,
-              DocumentSnapshot snapshot,
+              DocumentSnapshot? snapshot,
               Animation<double> animation,
               int index,
             ) {
@@ -189,13 +205,13 @@ class _MyHomePageState extends State<MyHomePage> {
             key: ValueKey("staggered"),
             onLoaded: (snapshot) =>
                 print("Received on staggered: ${snapshot.docs.length}"),
-            staggeredTileBuilder: (int index, DocumentSnapshot snapshot) =>
+            staggeredTileBuilder: (int index, DocumentSnapshot? snapshot) =>
                 StaggeredTile.count(2, index.isEven ? 2 : 1),
             crossAxisCount: 4,
             query: query,
             itemBuilder: (
               BuildContext context,
-              DocumentSnapshot snapshot,
+              DocumentSnapshot? snapshot,
               Animation<double> animation,
               int index,
             ) {

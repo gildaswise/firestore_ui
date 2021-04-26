@@ -1,3 +1,9 @@
+## [1.20.0] - 2021-04-26
+
+* Updated to null-safety!
+* Updated `firebase_core` to 1.1.0
+* Updated `cloud_firestore` to 1.0.7
+
 ## [1.13.0] - 2021-01-18
 
 * Updated `firebase_core` to 0.7.0

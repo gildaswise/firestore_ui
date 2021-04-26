@@ -12,7 +12,7 @@ import 'firestore_list.dart';
 
 typedef Widget FirestoreAnimatedGridItemBuilder(
   BuildContext context,
-  DocumentSnapshot snapshot,
+  DocumentSnapshot? snapshot,
   Animation<double> animation,
   int index,
 );
@@ -23,10 +23,10 @@ typedef Widget ErrorChildBuilder(Exception exception);
 class FirestoreAnimatedGrid extends StatefulWidget {
   /// Creates a scrolling container that animates items when they are inserted or removed.
   FirestoreAnimatedGrid({
-    Key key,
-    @required this.query,
-    @required this.itemBuilder,
-    @required this.crossAxisCount,
+    Key? key,
+    required this.query,
+    required this.itemBuilder,
+    required this.crossAxisCount,
     this.mainAxisSpacing = 4.0,
     this.crossAxisSpacing = 4.0,
     this.childAspectRatio = 1.0,
@@ -45,19 +45,17 @@ class FirestoreAnimatedGrid extends StatefulWidget {
     this.shrinkWrap = false,
     this.padding,
     this.duration = const Duration(milliseconds: 300),
-  })  : assert(query != null),
-        assert(itemBuilder != null),
-        assert(crossAxisCount != null && crossAxisCount > 0),
-        assert(mainAxisSpacing != null && mainAxisSpacing >= 0),
-        assert(crossAxisSpacing != null && crossAxisSpacing >= 0),
-        assert(childAspectRatio != null && childAspectRatio > 0),
+  })  : assert(crossAxisCount > 0),
+        assert(mainAxisSpacing >= 0),
+        assert(crossAxisSpacing >= 0),
+        assert(childAspectRatio > 0),
         super(key: key);
 
   /// A Firestore query to use to populate the animated list
   final Query query;
 
   /// Method that gets called once the stream updates with a new QuerySnapshot
-  final Function(QuerySnapshot) onLoaded;
+  final Function(QuerySnapshot)? onLoaded;
 
   /// The number of children in the cross axis.
   final int crossAxisCount;
@@ -73,7 +71,7 @@ class FirestoreAnimatedGrid extends StatefulWidget {
 
   /// Called before any operation with a DocumentSnapshot;
   /// If it returns `true`, then dismisses that DocumentSnapshot from the list
-  final FilterCallback filter;
+  final FilterCallback? filter;
 
   /// This will change `onDocumentAdded` call to `.add` instead of `.insert`,
   /// which might help if your query doesn't care about order changes
@@ -81,15 +79,15 @@ class FirestoreAnimatedGrid extends StatefulWidget {
 
   /// A widget to display while the query is loading. Defaults to a
   /// centered [CircularProgressIndicator];
-  final Widget defaultChild;
+  final Widget? defaultChild;
 
   /// A widget to display if an error ocurred. Defaults to a
   /// centered [Icon] with `Icons.error` and the error itsef;
-  final ErrorChildBuilder errorChild;
+  final ErrorChildBuilder? errorChild;
 
   /// A widget to display if the query returns empty. Defaults to a
   /// `Container()`;
-  final Widget emptyChild;
+  final Widget? emptyChild;
 
   /// Called, as needed, to build list item widgets.
   ///
@@ -129,7 +127,7 @@ class FirestoreAnimatedGrid extends StatefulWidget {
   /// view is scrolled.
   ///
   /// Must be null if [primary] is true.
-  final ScrollController controller;
+  final ScrollController? controller;
 
   /// Whether this is the primary scroll view associated with the parent
   /// [PrimaryScrollController].
@@ -139,7 +137,7 @@ class FirestoreAnimatedGrid extends StatefulWidget {
   ///
   /// Defaults to true when [scrollDirection] is [Axis.vertical] and
   /// [controller] is null.
-  final bool primary;
+  final bool? primary;
 
   /// How the scroll view should respond to user input.
   ///
@@ -147,7 +145,7 @@ class FirestoreAnimatedGrid extends StatefulWidget {
   /// user stops dragging the scroll view.
   ///
   /// Defaults to matching platform conventions.
-  final ScrollPhysics physics;
+  final ScrollPhysics? physics;
 
   /// Whether the extent of the scroll view in the [scrollDirection] should be
   /// determined by the contents being viewed.
@@ -166,7 +164,7 @@ class FirestoreAnimatedGrid extends StatefulWidget {
   final bool shrinkWrap;
 
   /// The amount of space by which to inset the children.
-  final EdgeInsets padding;
+  final EdgeInsets? padding;
 
   /// The duration of the insert and remove animation.
   ///
@@ -180,8 +178,8 @@ class FirestoreAnimatedGrid extends StatefulWidget {
 class FirestoreAnimatedGridState extends State<FirestoreAnimatedGrid> {
   final GlobalKey<AnimatedGridState> _animatedListKey =
       GlobalKey<AnimatedGridState>();
-  FirestoreList _model;
-  Exception _error;
+  FirestoreList? _model;
+  Exception? _error;
   bool _loaded = false;
 
   /// Should only be called without setState, inside @override methods here
@@ -217,7 +215,7 @@ class FirestoreAnimatedGridState extends State<FirestoreAnimatedGrid> {
   @override
   void dispose() {
     // Cancel the Firebase stream subscriptions
-    _model.clear();
+    _model!.clear();
     super.dispose();
   }
 
@@ -241,13 +239,13 @@ class FirestoreAnimatedGridState extends State<FirestoreAnimatedGrid> {
         });
       }
     } catch (error) {
-      _model.log("Failed to run onDocumentAdded");
+      _model!.log("Failed to run onDocumentAdded");
     }
   }
 
   void _onDocumentRemoved(int index, DocumentSnapshot snapshot) {
     // The child should have already been removed from the model by now
-    assert(!_model.contains(snapshot));
+    assert(!_model!.contains(snapshot));
     if (mounted) {
       try {
         setState(() {
@@ -260,7 +258,7 @@ class FirestoreAnimatedGridState extends State<FirestoreAnimatedGrid> {
           );
         });
       } catch (error) {
-        _model.log("Failed to remove Widget on index $index");
+        _model!.log("Failed to remove Widget on index $index");
       }
     }
   }
@@ -272,7 +270,7 @@ class FirestoreAnimatedGridState extends State<FirestoreAnimatedGrid> {
     }
   }
 
-  void _onLoaded(QuerySnapshot querySnapshot) {
+  void _onLoaded(QuerySnapshot? querySnapshot) {
     if (mounted && !_loaded) {
       setState(() {
         _loaded = true;
@@ -287,17 +285,21 @@ class FirestoreAnimatedGridState extends State<FirestoreAnimatedGrid> {
 
   Widget _buildItem(
       BuildContext context, int index, Animation<double> animation) {
-    return widget.itemBuilder(context, _model[index], animation, index);
+    return widget.itemBuilder(context, _model![index], animation, index);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_model.isEmpty) {
-      return _loaded ? (widget.emptyChild ?? Container()) : (widget.defaultChild ?? const Center(child: CircularProgressIndicator()));
+    if (_model!.isEmpty) {
+      return _loaded
+          ? (widget.emptyChild ?? Container())
+          : (widget.defaultChild ??
+              const Center(child: CircularProgressIndicator()));
     }
 
     if (_error != null) {
-      return widget.errorChild ?? const Center(child: Icon(Icons.error));
+      return widget.errorChild as Widget? ??
+          const Center(child: Icon(Icons.error));
     }
 
     return AnimatedGrid(
@@ -307,7 +309,7 @@ class FirestoreAnimatedGridState extends State<FirestoreAnimatedGrid> {
       childAspectRatio: widget.childAspectRatio,
       crossAxisSpacing: widget.crossAxisSpacing,
       itemBuilder: _buildItem,
-      initialItemCount: _model.length,
+      initialItemCount: _model!.length,
       scrollDirection: widget.scrollDirection,
       reverse: widget.reverse,
       controller: widget.controller,
