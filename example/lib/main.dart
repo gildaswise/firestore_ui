@@ -35,13 +35,9 @@ class MessageListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String message = 'No message retrieved!';
-    if (document != null) {
-      if (document!.data() != null) {
-        final data =
-            Map<String, dynamic>.from(document!.data() as Map<String, dynamic>);
-        final receivedMessage = data['message'];
-        if (receivedMessage != null) message = receivedMessage;
-      }
+    if (document != null && document!.exists) {
+      final receivedMessage = document!.get("message");
+      if (receivedMessage != null) message = receivedMessage;
     }
 
     return ListTile(
