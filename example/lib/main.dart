@@ -38,7 +38,7 @@ class MessageListTile extends StatelessWidget {
     if (document != null) {
       final data = document!.data();
       if (data != null) {
-        final receivedMessage = data['message'];
+        final receivedMessage = (data as Map)['message'];
         if (receivedMessage != null) message = receivedMessage;
       }
     }
