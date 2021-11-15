@@ -1,3 +1,10 @@
+## [1.22.0] - 2021-11-15
+
+* Updated `firebase_core` to 1.10.0
+* Updated `firebase_core_platform_interface` to 4.1.0
+* Updated `cloud_firestore` to 3.1.0
+* Updated `cloud_firestore_platform_interface` to 5.4.5
+
 ## [1.21.0] - 2021-10-18
 
 * Updated `meta` to 1.7.0
