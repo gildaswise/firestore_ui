@@ -8,15 +8,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firestore_ui/stream_subscriber_mixin.dart';
 import 'package:flutter/foundation.dart';
 
-typedef void DocumentCallback(int index, DocumentSnapshot snapshot);
-typedef bool FilterCallback(DocumentSnapshot snapshot);
-typedef void ValueCallback(DocumentSnapshot snapshot);
-typedef void QueryCallback(QuerySnapshot querySnapshot);
+typedef void DocumentCallback<T>(int index, DocumentSnapshot<T> snapshot);
+typedef bool FilterCallback<T>(DocumentSnapshot<T> snapshot);
+typedef void ValueCallback<T>(DocumentSnapshot<T> snapshot);
+typedef void QueryCallback<T>(QuerySnapshot<T> querySnapshot);
 typedef void ErrorCallback(Exception error);
 
 /// Handles [DocumentChange] events, errors and streaming
-class FirestoreList extends ListBase<DocumentSnapshot?>
-    with StreamSubscriberMixin<QuerySnapshot> {
+class FirestoreList<T> extends ListBase<DocumentSnapshot<T>?>
+    with StreamSubscriberMixin<QuerySnapshot<T>> {
   FirestoreList({
     required this.query,
     this.onDocumentAdded,
@@ -29,13 +29,15 @@ class FirestoreList extends ListBase<DocumentSnapshot?>
     this.linear = false,
     this.debug = false,
   }) {
-    assert(query != null);
-    listen(query!.snapshots(), _onData,
-        onError: (Object error) => _onError(error as Exception));
+    listen(
+      query.snapshots(),
+      _onData,
+      onError: (Object error) => _onError(error as Exception),
+    );
   }
 
   /// Firestore query used to populate the list
-  final Query? query;
+  final Query<T> query;
 
   /// Whether or not to show debug logs
   final bool debug;
@@ -48,28 +50,28 @@ class FirestoreList extends ListBase<DocumentSnapshot?>
 
   /// Called before any operation with a DocumentSnapshot;
   /// If it returns `true`, then dismisses that DocumentSnapshot from the list
-  final FilterCallback? filter;
+  final FilterCallback<T>? filter;
 
   /// Called when the Document has been added
-  final DocumentCallback? onDocumentAdded;
+  final DocumentCallback<T>? onDocumentAdded;
 
   /// Called when the Document has been removed
-  final DocumentCallback? onDocumentRemoved;
+  final DocumentCallback<T>? onDocumentRemoved;
 
   /// Called when the Document has changed
-  final DocumentCallback? onDocumentChanged;
+  final DocumentCallback<T>? onDocumentChanged;
 
   /// Called when the data of the list has finished loading
-  final ValueCallback? onValue;
+  final ValueCallback<T>? onValue;
 
   /// Called when the full list has been loaded
-  final QueryCallback? onLoaded;
+  final QueryCallback<T>? onLoaded;
 
   /// Called when an error is reported (e.g. permission denied)
   final ErrorCallback? onError;
 
   // ListBase implementation
-  final List<DocumentSnapshot> _snapshots = <DocumentSnapshot>[];
+  final List<DocumentSnapshot<T>> _snapshots = <DocumentSnapshot<T>>[];
 
   @override
   int get length => _snapshots.length;
@@ -80,13 +82,13 @@ class FirestoreList extends ListBase<DocumentSnapshot?>
   }
 
   @override
-  DocumentSnapshot? operator [](int index) =>
+  DocumentSnapshot<T>? operator [](int index) =>
       _snapshots.isEmpty || index < 0 || index >= length
           ? null
           : _snapshots[index];
 
   @override
-  void operator []=(int index, DocumentSnapshot? value) {
+  void operator []=(int index, DocumentSnapshot<T>? value) {
     throw UnsupportedError("List cannot be modified.");
   }
 
@@ -102,12 +104,12 @@ class FirestoreList extends ListBase<DocumentSnapshot?>
 
   int _indexForKey(String key) {
     assert(key.isNotEmpty);
-    return _snapshots.indexWhere((DocumentSnapshot item) => item.id == key);
+    return _snapshots.indexWhere((DocumentSnapshot<T> item) => item.id == key);
   }
 
-  void _onChange(List<DocumentChange> documentChanges) {
+  void _onChange(List<DocumentChange<T>> documentChanges) {
     if (documentChanges.isNotEmpty) {
-      for (DocumentChange change in documentChanges) {
+      for (DocumentChange<T> change in documentChanges) {
         final isHidden = filter?.call(change.doc) ?? false;
         log("Document ${change.doc.id} is hidden: $isHidden");
         if (isHidden) {
@@ -132,7 +134,7 @@ class FirestoreList extends ListBase<DocumentSnapshot?>
     }
   }
 
-  void _onData(QuerySnapshot snapshot) {
+  void _onData(QuerySnapshot<T> snapshot) {
     log("Calling _onData for a new QuerySnapshot");
     log("QuerySnapshot.documents: ${snapshot.docs.length}");
     log("QuerySnapshot.documentChanges: ${snapshot.docChanges.length}");
@@ -140,7 +142,7 @@ class FirestoreList extends ListBase<DocumentSnapshot?>
     _onChange(snapshot.docChanges);
   }
 
-  void _onDocumentAdded(DocumentChange event) {
+  void _onDocumentAdded(DocumentChange<T> event) {
     try {
       log("Calling _onDocumentAdded for document on index ${event.newIndex}");
       if (linear) {
@@ -156,7 +158,7 @@ class FirestoreList extends ListBase<DocumentSnapshot?>
     }
   }
 
-  void _onDocumentRemoved(DocumentChange event) {
+  void _onDocumentRemoved(DocumentChange<T> event) {
     try {
       log("Calling _onDocumentRemoved for document on index ${event.oldIndex}");
       final index = _indexForKey(event.doc.id);
@@ -171,7 +173,7 @@ class FirestoreList extends ListBase<DocumentSnapshot?>
     }
   }
 
-  void _onDocumentChanged(DocumentChange event) {
+  void _onDocumentChanged(DocumentChange<T> event) {
     final int index = _indexForKey(event.doc.id);
     if (index > -1) {
       log("Calling _onDocumentChanged for document on index ${event.newIndex}");
@@ -180,7 +182,7 @@ class FirestoreList extends ListBase<DocumentSnapshot?>
     }
   }
 
-  DocumentSnapshot _onValue(DocumentSnapshot document) {
+  DocumentSnapshot<T> _onValue(DocumentSnapshot<T> document) {
     log("Calling onValue for document ${document.id}");
     onValue?.call(document);
     return document;

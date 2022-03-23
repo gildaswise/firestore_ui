@@ -4,21 +4,18 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firestore_ui/firestore_ui.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 
-import 'firestore_list.dart';
-
-typedef Widget FirestoreAnimatedListItemBuilder(
+typedef Widget FirestoreAnimatedListItemBuilder<T>(
   BuildContext context,
-  DocumentSnapshot? snapshot,
+  DocumentSnapshot<T>? snapshot,
   Animation<double> animation,
   int index,
 );
 
 /// An AnimatedList widget that is bound to a query
-class FirestoreAnimatedList extends StatefulWidget {
+class FirestoreAnimatedList<T> extends StatefulWidget {
   /// Creates a scrolling container that animates items when they are inserted or removed.
   FirestoreAnimatedList({
     Key? key,
@@ -42,14 +39,14 @@ class FirestoreAnimatedList extends StatefulWidget {
   }) : super(key: key);
 
   /// A Firestore query to use to populate the animated list
-  final Query query;
+  final Query<T> query;
 
   /// Method that gets called once the stream updates with a new QuerySnapshot
-  final Function(QuerySnapshot)? onLoaded;
+  final Function(QuerySnapshot<T>)? onLoaded;
 
   /// Called before any operation with a DocumentSnapshot;
   /// If it returns `true`, then dismisses that DocumentSnapshot from the list
-  final FilterCallback? filter;
+  final FilterCallback<T>? filter;
 
   /// This will change `onDocumentAdded` call to `.add` instead of `.insert`,
   /// which might help if your query doesn't care about order changes
@@ -76,7 +73,7 @@ class FirestoreAnimatedList extends StatefulWidget {
   ///
   /// Implementations of this callback should assume that [AnimatedList.removeItem]
   /// removes an item immediately.
-  final FirestoreAnimatedListItemBuilder itemBuilder;
+  final FirestoreAnimatedListItemBuilder<T> itemBuilder;
 
   /// The axis along which the scroll view scrolls.
   ///
@@ -150,20 +147,20 @@ class FirestoreAnimatedList extends StatefulWidget {
   final Duration duration;
 
   @override
-  FirestoreAnimatedListState createState() => FirestoreAnimatedListState();
+  FirestoreAnimatedListState<T> createState() => FirestoreAnimatedListState<T>();
 }
 
-class FirestoreAnimatedListState extends State<FirestoreAnimatedList> {
+class FirestoreAnimatedListState<T> extends State<FirestoreAnimatedList<T>> {
   final GlobalKey<AnimatedListState> _animatedListKey =
       GlobalKey<AnimatedListState>();
-  FirestoreList? _model;
+  FirestoreList<T>? _model;
   Exception? _error;
   bool _loaded = false;
 
   /// Should only be called without setState, inside @override methods here
   _updateModel() {
     _model?.clear();
-    _model = FirestoreList(
+    _model = FirestoreList<T>(
       query: widget.query,
       onDocumentAdded: _onDocumentAdded,
       onDocumentRemoved: _onDocumentRemoved,
@@ -184,7 +181,7 @@ class FirestoreAnimatedListState extends State<FirestoreAnimatedList> {
   }
 
   @override
-  void didUpdateWidget(FirestoreAnimatedList oldWidget) {
+  void didUpdateWidget(FirestoreAnimatedList<T> oldWidget) {
     if (!DeepCollectionEquality.unordered().equals(
         oldWidget.query.parameters, widget.query.parameters)) _updateModel();
     super.didUpdateWidget(oldWidget);
@@ -205,7 +202,7 @@ class FirestoreAnimatedListState extends State<FirestoreAnimatedList> {
     }
   }
 
-  void _onDocumentAdded(int index, DocumentSnapshot snapshot) {
+  void _onDocumentAdded(int index, DocumentSnapshot<T> snapshot) {
     // if (!_loaded) {
     //   return; // AnimatedList is not created yet
     // }
@@ -221,7 +218,7 @@ class FirestoreAnimatedListState extends State<FirestoreAnimatedList> {
     }
   }
 
-  void _onDocumentRemoved(int index, DocumentSnapshot snapshot) {
+  void _onDocumentRemoved(int index, DocumentSnapshot<T> snapshot) {
     // The child should have already been removed from the model by now
     assert(!_model!.contains(snapshot));
     if (mounted) {
@@ -242,13 +239,13 @@ class FirestoreAnimatedListState extends State<FirestoreAnimatedList> {
   }
 
   // No animation, just update contents
-  void _onDocumentChanged(int index, DocumentSnapshot snapshot) {
+  void _onDocumentChanged(int index, DocumentSnapshot<T> snapshot) {
     if (mounted) {
       setState(() {});
     }
   }
 
-  void _onLoaded(QuerySnapshot? querySnapshot) {
+  void _onLoaded(QuerySnapshot<T>? querySnapshot) {
     if (mounted && !_loaded) {
       setState(() {
         _loaded = true;
@@ -257,7 +254,7 @@ class FirestoreAnimatedListState extends State<FirestoreAnimatedList> {
     if (querySnapshot != null) widget.onLoaded?.call(querySnapshot);
   }
 
-  void _onValue(DocumentSnapshot snapshot) {
+  void _onValue(DocumentSnapshot<T> snapshot) {
     _onLoaded(null);
   }
 

@@ -4,15 +4,12 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firestore_ui/firestore_ui.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 
-import 'firestore_list.dart';
-
-typedef Widget FirestoreAnimatedGridItemBuilder(
+typedef Widget FirestoreAnimatedGridItemBuilder<T>(
   BuildContext context,
-  DocumentSnapshot? snapshot,
+  DocumentSnapshot<T>? snapshot,
   Animation<double> animation,
   int index,
 );
@@ -20,7 +17,7 @@ typedef Widget FirestoreAnimatedGridItemBuilder(
 typedef Widget ErrorChildBuilder(Exception exception);
 
 /// An AnimatedList widget that is bound to a query
-class FirestoreAnimatedGrid extends StatefulWidget {
+class FirestoreAnimatedGrid<T> extends StatefulWidget {
   /// Creates a scrolling container that animates items when they are inserted or removed.
   FirestoreAnimatedGrid({
     Key? key,
@@ -52,10 +49,10 @@ class FirestoreAnimatedGrid extends StatefulWidget {
         super(key: key);
 
   /// A Firestore query to use to populate the animated list
-  final Query query;
+  final Query<T> query;
 
   /// Method that gets called once the stream updates with a new QuerySnapshot
-  final Function(QuerySnapshot)? onLoaded;
+  final Function(QuerySnapshot<T>)? onLoaded;
 
   /// The number of children in the cross axis.
   final int crossAxisCount;
@@ -71,7 +68,7 @@ class FirestoreAnimatedGrid extends StatefulWidget {
 
   /// Called before any operation with a DocumentSnapshot;
   /// If it returns `true`, then dismisses that DocumentSnapshot from the list
-  final FilterCallback? filter;
+  final FilterCallback<T>? filter;
 
   /// This will change `onDocumentAdded` call to `.add` instead of `.insert`,
   /// which might help if your query doesn't care about order changes
@@ -98,7 +95,7 @@ class FirestoreAnimatedGrid extends StatefulWidget {
   ///
   /// Implementations of this callback should assume that [AnimatedList.removeItem]
   /// removes an item immediately.
-  final FirestoreAnimatedGridItemBuilder itemBuilder;
+  final FirestoreAnimatedGridItemBuilder<T> itemBuilder;
 
   /// The axis along which the scroll view scrolls.
   ///
@@ -172,20 +169,20 @@ class FirestoreAnimatedGrid extends StatefulWidget {
   final Duration duration;
 
   @override
-  FirestoreAnimatedGridState createState() => FirestoreAnimatedGridState();
+  FirestoreAnimatedGridState<T> createState() => FirestoreAnimatedGridState<T>();
 }
 
-class FirestoreAnimatedGridState extends State<FirestoreAnimatedGrid> {
+class FirestoreAnimatedGridState<T> extends State<FirestoreAnimatedGrid<T>> {
   final GlobalKey<AnimatedGridState> _animatedListKey =
       GlobalKey<AnimatedGridState>();
-  FirestoreList? _model;
+  FirestoreList<T>? _model;
   Exception? _error;
   bool _loaded = false;
 
   /// Should only be called without setState, inside @override methods here
   _updateModel() {
     _model?.clear();
-    _model = FirestoreList(
+    _model = FirestoreList<T>(
       query: widget.query,
       onDocumentAdded: _onDocumentAdded,
       onDocumentRemoved: _onDocumentRemoved,
@@ -206,7 +203,7 @@ class FirestoreAnimatedGridState extends State<FirestoreAnimatedGrid> {
   }
 
   @override
-  void didUpdateWidget(FirestoreAnimatedGrid oldWidget) {
+  void didUpdateWidget(FirestoreAnimatedGrid<T> oldWidget) {
     if (!DeepCollectionEquality.unordered().equals(
         oldWidget.query.parameters, widget.query.parameters)) _updateModel();
     super.didUpdateWidget(oldWidget);
@@ -227,7 +224,7 @@ class FirestoreAnimatedGridState extends State<FirestoreAnimatedGrid> {
     }
   }
 
-  void _onDocumentAdded(int index, DocumentSnapshot snapshot) {
+  void _onDocumentAdded(int index, DocumentSnapshot<T> snapshot) {
     // if (!_loaded) {
     //   return; // AnimatedList is not created yet
     // }
@@ -243,7 +240,7 @@ class FirestoreAnimatedGridState extends State<FirestoreAnimatedGrid> {
     }
   }
 
-  void _onDocumentRemoved(int index, DocumentSnapshot snapshot) {
+  void _onDocumentRemoved(int index, DocumentSnapshot<T> snapshot) {
     // The child should have already been removed from the model by now
     assert(!_model!.contains(snapshot));
     if (mounted) {
@@ -264,13 +261,13 @@ class FirestoreAnimatedGridState extends State<FirestoreAnimatedGrid> {
   }
 
   // No animation, just update contents
-  void _onDocumentChanged(int index, DocumentSnapshot snapshot) {
+  void _onDocumentChanged(int index, DocumentSnapshot<T> snapshot) {
     if (mounted) {
       setState(() {});
     }
   }
 
-  void _onLoaded(QuerySnapshot? querySnapshot) {
+  void _onLoaded(QuerySnapshot<T>? querySnapshot) {
     if (mounted && !_loaded) {
       setState(() {
         _loaded = true;
@@ -279,7 +276,7 @@ class FirestoreAnimatedGridState extends State<FirestoreAnimatedGrid> {
     if (querySnapshot != null) widget.onLoaded?.call(querySnapshot);
   }
 
-  void _onValue(DocumentSnapshot snapshot) {
+  void _onValue(DocumentSnapshot<T> snapshot) {
     _onLoaded(null);
   }
 

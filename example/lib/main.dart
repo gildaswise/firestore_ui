@@ -11,7 +11,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 final String title = 'firestore_ui example';
 
-typedef OnSnapshot = Function(DocumentSnapshot?);
+typedef OnSnapshot = Function(DocumentSnapshot<Map<String, dynamic>>?);
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +22,7 @@ Future<void> main() async {
 
 class MessageListTile extends StatelessWidget {
   final int index;
-  final DocumentSnapshot? document;
+  final DocumentSnapshot<Map<String, dynamic>>? document;
   final OnSnapshot? onTap;
 
   const MessageListTile({
@@ -36,7 +36,7 @@ class MessageListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     String message = 'No message retrieved!';
     if (document != null && document!.exists) {
-      final receivedMessage = document!.get("message");
+      final receivedMessage = document!.data()?.toString();
       if (receivedMessage != null) message = receivedMessage;
     }
 
@@ -52,7 +52,7 @@ class MessageListTile extends StatelessWidget {
 
 class MessageGridTile extends StatelessWidget {
   final int index;
-  final DocumentSnapshot? document;
+  final DocumentSnapshot<Map<String, dynamic>>? document;
   final OnSnapshot? onTap;
 
   const MessageGridTile({
@@ -96,13 +96,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   int _currentIndex = 0;
 
-  CollectionReference get messages => widget.firestore.collection('messages');
+  CollectionReference<Map<String, dynamic>> get messages => widget.firestore.collection('messages');
 
   _addMessage() => messages.doc().set(<String, dynamic>{
         'message': 'Hello world!',
       });
 
-  _removeMessage(DocumentSnapshot? snapshot) {
+  _removeMessage(DocumentSnapshot<Map<String, dynamic>>? snapshot) {
     if (snapshot != null)
       widget.firestore.runTransaction((transaction) async {
         transaction.delete(snapshot.reference);
@@ -121,7 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
   /// Feel free to experiment here with query parameters, upon calling `setState` or hot reloading
   /// the query will automatically update what's on the list. The easiest way to test this is to
   /// change the limit below, or remove it. The example collection has 500+ elements.
-  Query get query => widget.firestore.collection('messages').limit(20);
+  Query<Map<String, dynamic>> get query => widget.firestore.collection('messages').limit(20);
 
   @override
   Widget build(BuildContext context) {
@@ -155,7 +155,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: PageView(
         controller: _controller,
         children: <Widget>[
-          FirestoreAnimatedList(
+          FirestoreAnimatedList<Map<String, dynamic>>(
             debug: false,
             key: ValueKey("list"),
             query: query,
@@ -163,7 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 print("Received on list: ${snapshot.docs.length}"),
             itemBuilder: (
               BuildContext context,
-              DocumentSnapshot? snapshot,
+              snapshot,
               Animation<double> animation,
               int index,
             ) =>
@@ -176,7 +176,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
           ),
-          FirestoreAnimatedGrid(
+          FirestoreAnimatedGrid<Map<String, dynamic>>(
             key: ValueKey("grid"),
             query: query,
             onLoaded: (snapshot) =>
@@ -184,7 +184,7 @@ class _MyHomePageState extends State<MyHomePage> {
             crossAxisCount: 2,
             itemBuilder: (
               BuildContext context,
-              DocumentSnapshot? snapshot,
+              snapshot,
               Animation<double> animation,
               int index,
             ) {
@@ -198,7 +198,7 @@ class _MyHomePageState extends State<MyHomePage> {
               );
             },
           ),
-          FirestoreAnimatedStaggered(
+          FirestoreAnimatedStaggered<Map<String, dynamic>>(
             key: ValueKey("staggered"),
             onLoaded: (snapshot) =>
                 print("Received on staggered: ${snapshot.docs.length}"),
@@ -208,7 +208,7 @@ class _MyHomePageState extends State<MyHomePage> {
             query: query,
             itemBuilder: (
               BuildContext context,
-              DocumentSnapshot? snapshot,
+              snapshot,
               Animation<double> animation,
               int index,
             ) {

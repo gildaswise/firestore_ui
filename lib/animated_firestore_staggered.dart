@@ -4,26 +4,23 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firestore_ui/firestore_ui.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 
-import 'firestore_list.dart';
-
-typedef Widget FirestoreAnimatedStaggeredItemBuilder(
+typedef Widget FirestoreAnimatedStaggeredItemBuilder<T>(
   BuildContext context,
-  DocumentSnapshot? snapshot,
+  DocumentSnapshot<T>? snapshot,
   Animation<double> animation,
   int index,
 );
 
-typedef StaggeredTile FirestoreStaggeredTileBuilder(
+typedef StaggeredTile FirestoreStaggeredTileBuilder<T>(
   int index,
-  DocumentSnapshot? snapshot,
+  DocumentSnapshot<T>? snapshot,
 );
 
 /// An AnimatedList widget that is bound to a query
-class FirestoreAnimatedStaggered extends StatefulWidget {
+class FirestoreAnimatedStaggered<T> extends StatefulWidget {
   /// Creates a scrolling container that animates items when they are inserted or removed.
   FirestoreAnimatedStaggered({
     Key? key,
@@ -56,13 +53,13 @@ class FirestoreAnimatedStaggered extends StatefulWidget {
         super(key: key);
 
   /// A Firestore query to use to populate the animated list
-  final Query query;
+  final Query<T> query;
 
   /// Method that gets called once the stream updates with a new [QuerySnapshot]
-  final Function(QuerySnapshot)? onLoaded;
+  final Function(QuerySnapshot<T>)? onLoaded;
 
   /// Signature for a function that creates [StaggeredTile] for a given index and [DocumentSnapshot]
-  final FirestoreStaggeredTileBuilder staggeredTileBuilder;
+  final FirestoreStaggeredTileBuilder<T> staggeredTileBuilder;
 
   /// The number of children in the cross axis.
   final int crossAxisCount;
@@ -78,7 +75,7 @@ class FirestoreAnimatedStaggered extends StatefulWidget {
 
   /// Called before any operation with a [DocumentSnapshot];
   /// If it returns `true`, then dismisses that [DocumentSnapshot] from the list
-  final FilterCallback? filter;
+  final FilterCallback<T>? filter;
 
   /// This will change `onDocumentAdded` call to `.add` instead of `.insert`,
   /// which might help if your query doesn't care about order changes
@@ -105,7 +102,7 @@ class FirestoreAnimatedStaggered extends StatefulWidget {
   ///
   /// Implementations of this callback should assume that [AnimatedList.removeItem]
   /// removes an item immediately.
-  final FirestoreAnimatedStaggeredItemBuilder itemBuilder;
+  final FirestoreAnimatedStaggeredItemBuilder<T> itemBuilder;
 
   /// The axis along which the scroll view scrolls.
   ///
@@ -179,22 +176,22 @@ class FirestoreAnimatedStaggered extends StatefulWidget {
   final Duration duration;
 
   @override
-  FirestoreAnimatedStaggeredState createState() =>
-      FirestoreAnimatedStaggeredState();
+  FirestoreAnimatedStaggeredState<T> createState() =>
+      FirestoreAnimatedStaggeredState<T>();
 }
 
-class FirestoreAnimatedStaggeredState
-    extends State<FirestoreAnimatedStaggered> {
+class FirestoreAnimatedStaggeredState<T>
+    extends State<FirestoreAnimatedStaggered<T>> {
   final GlobalKey<AnimatedStaggeredGridState> _animatedListKey =
       GlobalKey<AnimatedStaggeredGridState>();
-  FirestoreList? _model;
+  FirestoreList<T>? _model;
   Exception? _error;
   bool _loaded = false;
 
   /// Should only be called without setState, inside @override methods here
   _updateModel() {
     _model?.clear();
-    _model = FirestoreList(
+    _model = FirestoreList<T>(
       query: widget.query,
       onDocumentAdded: _onDocumentAdded,
       onDocumentRemoved: _onDocumentRemoved,
@@ -215,7 +212,7 @@ class FirestoreAnimatedStaggeredState
   }
 
   @override
-  void didUpdateWidget(FirestoreAnimatedStaggered oldWidget) {
+  void didUpdateWidget(FirestoreAnimatedStaggered<T> oldWidget) {
     if (!DeepCollectionEquality.unordered().equals(
         oldWidget.query.parameters, widget.query.parameters)) _updateModel();
     super.didUpdateWidget(oldWidget);
@@ -236,7 +233,7 @@ class FirestoreAnimatedStaggeredState
     }
   }
 
-  void _onDocumentAdded(int index, DocumentSnapshot snapshot) {
+  void _onDocumentAdded(int index, DocumentSnapshot<T> snapshot) {
     // if (!_loaded) {
     //   return; // AnimatedList is not created yet
     // }
@@ -252,7 +249,7 @@ class FirestoreAnimatedStaggeredState
     }
   }
 
-  void _onDocumentRemoved(int index, DocumentSnapshot snapshot) {
+  void _onDocumentRemoved(int index, DocumentSnapshot<T> snapshot) {
     // The child should have already been removed from the model by now
     assert(!_model!.contains(snapshot));
     if (mounted) {
@@ -273,13 +270,13 @@ class FirestoreAnimatedStaggeredState
   }
 
   // No animation, just update contents
-  void _onDocumentChanged(int index, DocumentSnapshot snapshot) {
+  void _onDocumentChanged(int index, DocumentSnapshot<T> snapshot) {
     if (mounted) {
       setState(() {});
     }
   }
 
-  void _onLoaded(QuerySnapshot? querySnapshot) {
+  void _onLoaded(QuerySnapshot<T>? querySnapshot) {
     if (mounted && !_loaded) {
       setState(() {
         _loaded = true;
@@ -288,7 +285,7 @@ class FirestoreAnimatedStaggeredState
     if (querySnapshot != null) widget.onLoaded?.call(querySnapshot);
   }
 
-  void _onValue(DocumentSnapshot snapshot) {
+  void _onValue(DocumentSnapshot<T> snapshot) {
     _onLoaded(null);
   }
 
