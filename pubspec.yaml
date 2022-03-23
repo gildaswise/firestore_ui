@@ -1,26 +1,29 @@
 name: firestore_ui
 description: A port of firebase_database's FirebaseAnimatedList that works with cloud_firestore, with additional variants
-version: 1.22.0
+version: 1.23.0
 homepage: https://github.com/gildaswise/firestore_ui
 # author: Gildásio Filho <gildasiogx@gmail.com>
 
 environment:
   sdk: '>=2.12.0 <3.0.0'
 
-
 dependencies:
   flutter:
     sdk: flutter
   meta: ^1.7.0
-  firebase_core: ^1.10.0
-  firebase_core_platform_interface: ^4.1.0
-  cloud_firestore: ^3.1.0
-  cloud_firestore_platform_interface: ^5.4.5
+  firebase_core: ^1.13.1
+  firebase_core_platform_interface: ^4.2.5
+  cloud_firestore: ^3.1.10
+  cloud_firestore_platform_interface: ^5.5.1
   flutter_staggered_grid_view: ^0.4.1
   collection: ^1.15.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+false_secrets:
+  - /example/android/app/google-services.json
+  - /example/ios/Runner/GoogleService-Info.plist
 
 flutter:

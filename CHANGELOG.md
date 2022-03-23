@@ -1,3 +1,12 @@
+## [1.23.0] - 2022-03-23
+
+* Updated `firebase_core` to 1.13.1
+* Updated `firebase_core_platform_interface` to 4.2.5
+* Updated `cloud_firestore` to 3.1.10
+* Updated `cloud_firestore_platform_interface` to 5.5.1
+* Added `<T>` generics support for everything
+
+
 ## [1.22.0] - 2021-11-15
 
 * Updated `firebase_core` to 1.10.0
