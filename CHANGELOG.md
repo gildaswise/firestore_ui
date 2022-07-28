@@ -1,3 +1,11 @@
+## [1.24.0] - 2022-07-29
+
+* Updated `firebase_core` to 1.20.0
+* Updated `firebase_core_platform_interface` to 4.5.0
+* Updated `cloud_firestore` to 3.4.2
+* Updated `cloud_firestore_platform_interface` to 5.7.0
+* Updated `collection` to 1.16.0
+
 ## [1.23.0] - 2022-03-23
 
 * Updated `firebase_core` to 1.13.1
