@@ -6,6 +6,7 @@ import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart' show Firebase;
 import 'package:firestore_ui/firestore_ui.dart';
+import 'package:firestore_ui_example/firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -15,66 +16,102 @@ typedef OnSnapshot = Function(DocumentSnapshot<Map<String, dynamic>>?);
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  runApp(MaterialApp(
-      title: title, home: MyHomePage(firestore: FirebaseFirestore.instance)));
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  runApp(
+    MaterialApp(
+      title: title,
+      home: MyHomePage(firestore: FirebaseFirestore.instance),
+    ),
+  );
 }
 
-class MessageListTile extends StatelessWidget {
-  final int index;
-  final DocumentSnapshot<Map<String, dynamic>>? document;
-  final OnSnapshot? onTap;
+@immutable
+class Movie {
+  Movie({
+    required this.genre,
+    required this.likes,
+    required this.poster,
+    required this.rated,
+    required this.runtime,
+    required this.title,
+    required this.year,
+  });
 
-  const MessageListTile({
+  Movie.fromJson(Map<String, Object?> json)
+      : this(
+    genre: (json['genre']! as List).cast<String>(),
+    likes: json['likes']! as int,
+    poster: json['poster']! as String,
+    rated: json['rated']! as String,
+    runtime: json['runtime']! as String,
+    title: json['title']! as String,
+    year: json['year']! as int,
+  );
+
+  final String poster;
+  final int likes;
+  final String title;
+  final int year;
+  final String runtime;
+  final String rated;
+  final List<String> genre;
+
+  Map<String, Object?> toJson() {
+    return {
+      'genre': genre,
+      'likes': likes,
+      'poster': poster,
+      'rated': rated,
+      'runtime': runtime,
+      'title': title,
+      'year': year,
+    };
+  }
+}
+
+class MovieListTile extends StatelessWidget {
+  final int index;
+  final DocumentSnapshot<Movie>? document;
+
+  const MovieListTile({
     Key? key,
     required this.index,
     required this.document,
-    required this.onTap,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    String message = 'No message retrieved!';
+    String title = 'No movie retrieved!';
     if (document != null && document!.exists) {
-      final receivedMessage = document!.data()?.toString();
-      if (receivedMessage != null) message = receivedMessage;
+      final receivedMessage = document!.data()?.title;
+      if (receivedMessage != null) title = receivedMessage;
     }
 
     return ListTile(
-      title: Text(message),
-      subtitle: Text('Message ${this.index + 1}'),
-      onTap: document != null && onTap != null
-          ? () => onTap!.call(this.document!)
-          : null,
+      title: Text(title),
+      subtitle: Text('Item ${this.index + 1}'),
     );
   }
 }
 
 class MessageGridTile extends StatelessWidget {
   final int index;
-  final DocumentSnapshot<Map<String, dynamic>>? document;
-  final OnSnapshot? onTap;
+  final DocumentSnapshot<Movie>? document;
 
   const MessageGridTile({
     Key? key,
     required this.index,
     required this.document,
-    required this.onTap,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: document != null && onTap != null
-          ? () => onTap!.call(this.document!)
-          : null,
-      child: Container(
-        color: Colors.green,
-        child: Center(
-          child: CircleAvatar(
-            backgroundColor: Colors.white,
-            child: Text('${this.index + 1}'),
-          ),
+    return Container(
+      color: Colors.green,
+      child: Center(
+        child: CircleAvatar(
+          backgroundColor: Colors.white,
+          child: Text('${this.index + 1}'),
         ),
       ),
     );
@@ -91,25 +128,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final PageController _controller =
-      PageController(initialPage: 0, keepPage: true);
+  final PageController _controller = PageController(initialPage: 0, keepPage: true);
 
   int _currentIndex = 0;
-
-  CollectionReference<Map<String, dynamic>> get messages => widget.firestore.collection('messages');
-
-  _addMessage() => messages.doc().set(<String, dynamic>{
-        'message': 'Hello world!',
-      });
-
-  _removeMessage(DocumentSnapshot<Map<String, dynamic>>? snapshot) {
-    if (snapshot != null)
-      widget.firestore.runTransaction((transaction) async {
-        transaction.delete(snapshot.reference);
-      }).catchError((exception, stacktrace) {
-        print("Couldn't remove item: $exception");
-      });
-  }
 
   void _updateIndex(int value) {
     if (mounted) {
@@ -121,7 +142,10 @@ class _MyHomePageState extends State<MyHomePage> {
   /// Feel free to experiment here with query parameters, upon calling `setState` or hot reloading
   /// the query will automatically update what's on the list. The easiest way to test this is to
   /// change the limit below, or remove it. The example collection has 500+ elements.
-  Query<Map<String, dynamic>> get query => widget.firestore.collection('messages').limit(20);
+  Query<Movie> get query => widget.firestore.collection('firestore-example-app').withConverter<Movie>(
+    fromFirestore: (snapshots, _) => Movie.fromJson(snapshots.data()!),
+    toFirestore: (movie, _) => movie.toJson(),
+  ).limit(20);
 
   @override
   Widget build(BuildContext context) {
@@ -147,20 +171,14 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(title),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addMessage,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
       body: PageView(
         controller: _controller,
         children: <Widget>[
-          FirestoreAnimatedList<Map<String, dynamic>>(
+          FirestoreAnimatedList<Movie>(
             debug: false,
             key: ValueKey("list"),
             query: query,
-            onLoaded: (snapshot) =>
-                print("Received on list: ${snapshot.docs.length}"),
+            onLoaded: (snapshot) => print("Received on list: ${snapshot.docs.length}"),
             itemBuilder: (
               BuildContext context,
               snapshot,
@@ -169,18 +187,16 @@ class _MyHomePageState extends State<MyHomePage> {
             ) =>
                 FadeTransition(
               opacity: animation,
-              child: MessageListTile(
+              child: MovieListTile(
                 index: index,
                 document: snapshot,
-                onTap: _removeMessage,
               ),
             ),
           ),
-          FirestoreAnimatedGrid<Map<String, dynamic>>(
+          FirestoreAnimatedGrid<Movie>(
             key: ValueKey("grid"),
             query: query,
-            onLoaded: (snapshot) =>
-                print("Received on grid: ${snapshot.docs.length}"),
+            onLoaded: (snapshot) => print("Received on grid: ${snapshot.docs.length}"),
             crossAxisCount: 2,
             itemBuilder: (
               BuildContext context,
@@ -193,17 +209,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: MessageGridTile(
                   index: index,
                   document: snapshot,
-                  onTap: _removeMessage,
                 ),
               );
             },
           ),
-          FirestoreAnimatedStaggered<Map<String, dynamic>>(
+          FirestoreAnimatedStaggered<Movie>(
             key: ValueKey("staggered"),
-            onLoaded: (snapshot) =>
-                print("Received on staggered: ${snapshot.docs.length}"),
-            staggeredTileBuilder: (int index, DocumentSnapshot? snapshot) =>
-                StaggeredTile.count(2, index.isEven ? 2 : 1),
+            onLoaded: (snapshot) => print("Received on staggered: ${snapshot.docs.length}"),
+            staggeredTileBuilder: (int index, DocumentSnapshot? snapshot) => StaggeredTile.count(2, index.isEven ? 2 : 1),
             crossAxisCount: 4,
             query: query,
             itemBuilder: (
@@ -217,7 +230,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: MessageGridTile(
                   index: index,
                   document: snapshot,
-                  onTap: _removeMessage,
                 ),
               );
             },
