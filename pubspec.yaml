@@ -23,6 +23,7 @@ dev_dependencies:
     sdk: flutter
 
 false_secrets:
+  - /example/lib/firebase_options.dart
   - /example/android/app/google-services.json
   - /example/ios/Runner/GoogleService-Info.plist
 
