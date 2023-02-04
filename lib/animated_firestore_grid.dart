@@ -4,7 +4,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firestore_ui/firestore_ui.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide AnimatedGrid, AnimatedGridState;
 import 'package:collection/collection.dart';
 
 typedef Widget FirestoreAnimatedGridItemBuilder<T>(
