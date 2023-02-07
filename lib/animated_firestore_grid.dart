@@ -7,6 +7,8 @@ import 'package:firestore_ui/firestore_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 
+part 'animated_grid.dart';
+
 typedef Widget FirestoreAnimatedGridItemBuilder<T>(
   BuildContext context,
   DocumentSnapshot<T>? snapshot,
@@ -169,12 +171,13 @@ class FirestoreAnimatedGrid<T> extends StatefulWidget {
   final Duration duration;
 
   @override
-  FirestoreAnimatedGridState<T> createState() => FirestoreAnimatedGridState<T>();
+  FirestoreAnimatedGridState<T> createState() =>
+      FirestoreAnimatedGridState<T>();
 }
 
 class FirestoreAnimatedGridState<T> extends State<FirestoreAnimatedGrid<T>> {
-  final GlobalKey<AnimatedGridState> _animatedListKey =
-      GlobalKey<AnimatedGridState>();
+  final GlobalKey<_AnimatedGridState> _animatedListKey =
+      GlobalKey<_AnimatedGridState>();
   FirestoreList<T>? _model;
   Exception? _error;
   bool _loaded = false;
@@ -299,7 +302,7 @@ class FirestoreAnimatedGridState<T> extends State<FirestoreAnimatedGrid<T>> {
           const Center(child: Icon(Icons.error));
     }
 
-    return AnimatedGrid(
+    return _AnimatedGrid(
       key: _animatedListKey,
       crossAxisCount: widget.crossAxisCount,
       mainAxisSpacing: widget.mainAxisSpacing,

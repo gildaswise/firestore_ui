@@ -2,22 +2,20 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+part of 'animated_firestore_staggered.dart';
 
-/// Signature for the builder callback used by [AnimatedStaggeredGrid].
-typedef AnimatedStaggeredGridItemBuilder = Widget Function(
+/// Signature for the builder callback used by [_AnimatedStaggeredGrid].
+typedef _AnimatedStaggeredGridItemBuilder = Widget Function(
     BuildContext context, int index, Animation<double> animation);
 
-/// Signature for the builder callback used by [AnimatedStaggeredGridState.removeItem].
-typedef AnimatedStaggeredGridRemovedItemBuilder = Widget Function(
+/// Signature for the builder callback used by [_AnimatedStaggeredGridState.removeItem].
+typedef _AnimatedStaggeredGridRemovedItemBuilder = Widget Function(
     BuildContext context, Animation<double> animation);
 
 // The default insert/remove animation duration.
 const Duration _kDuration = Duration(milliseconds: 300);
 
-// Incoming and outgoing AnimatedStaggeredGrid items.
+// Incoming and outgoing _AnimatedStaggeredGrid items.
 class _ActiveItem implements Comparable<_ActiveItem> {
   _ActiveItem.incoming(this.controller, this.itemIndex)
       : removedItemBuilder = null;
@@ -28,7 +26,7 @@ class _ActiveItem implements Comparable<_ActiveItem> {
         removedItemBuilder = null;
 
   final AnimationController? controller;
-  final AnimatedStaggeredGridRemovedItemBuilder? removedItemBuilder;
+  final _AnimatedStaggeredGridRemovedItemBuilder? removedItemBuilder;
   int itemIndex;
 
   @override
@@ -37,14 +35,14 @@ class _ActiveItem implements Comparable<_ActiveItem> {
 
 /// A scrolling container that animates items when they are inserted or removed.
 ///
-/// This widget's [AnimatedStaggeredGridState] can be used to dynamically insert or remove
-/// items. To refer to the [AnimatedStaggeredGridState] either provide a [GlobalKey] or
+/// This widget's [_AnimatedStaggeredGridState] can be used to dynamically insert or remove
+/// items. To refer to the [_AnimatedStaggeredGridState] either provide a [GlobalKey] or
 /// use the static [of] method from an item's input callback.
 ///
 /// This widget is similar to one created by [GridView.builder].
-class AnimatedStaggeredGrid extends StatefulWidget {
+class _AnimatedStaggeredGrid extends StatefulWidget {
   /// Creates a scrolling container that animates items when they are inserted or removed.
-  const AnimatedStaggeredGrid({
+  const _AnimatedStaggeredGrid({
     Key? key,
     required this.itemBuilder,
     required this.crossAxisCount,
@@ -69,15 +67,15 @@ class AnimatedStaggeredGrid extends StatefulWidget {
   ///
   /// List items are only built when they're scrolled into view.
   ///
-  /// The [AnimatedStaggeredGridItemBuilder] index parameter indicates the item's
+  /// The [_AnimatedStaggeredGridItemBuilder] index parameter indicates the item's
   /// position in the list. The value of the index parameter will be between 0
   /// and [initialItemCount] plus the total number of items that have been
-  /// inserted with [AnimatedStaggeredGridState.insertItem] and less the total number of
-  /// items that have been removed with [AnimatedStaggeredGridState.removeItem].
+  /// inserted with [_AnimatedStaggeredGridState.insertItem] and less the total number of
+  /// items that have been removed with [_AnimatedStaggeredGridState.removeItem].
   ///
   /// Implementations of this callback should assume that
-  /// [AnimatedStaggeredGridState.removeItem] removes an item immediately.
-  final AnimatedStaggeredGridItemBuilder itemBuilder;
+  /// [_AnimatedStaggeredGridState.removeItem] removes an item immediately.
+  final _AnimatedStaggeredGridItemBuilder itemBuilder;
 
   /// Signature for a function that creates [StaggeredTile] for a given index.
   final IndexedStaggeredTileBuilder staggeredTileBuilder;
@@ -168,39 +166,15 @@ class AnimatedStaggeredGrid extends StatefulWidget {
   /// The amount of space by which to inset the children.
   final EdgeInsetsGeometry? padding;
 
-  /// The state from the closest instance of this class that encloses the given context.
-  ///
-  /// This method is typically used by [AnimatedStaggeredGrid] item widgets that insert or
-  /// remove items in response to user input.
-  ///
-  /// ```dart
-  /// AnimatedStaggeredGridState AnimatedStaggeredGrid = AnimatedStaggeredGrid.of(context);
-  /// ```
-  static AnimatedStaggeredGridState? of(BuildContext context,
-      {bool nullOk = false}) {
-    final AnimatedStaggeredGridState? result =
-        context.findAncestorStateOfType<AnimatedStaggeredGridState>();
-    if (nullOk || result != null) return result;
-    throw FlutterError(
-        'AnimatedStaggeredGrid.of() called with a context that does not contain an AnimatedStaggeredGrid.\n'
-        'No AnimatedStaggeredGrid ancestor could be found starting from the context that was passed to AnimatedStaggeredGrid.of(). '
-        'This can happen when the context provided is from the same StatefulWidget that '
-        'built the AnimatedStaggeredGrid. Please see the AnimatedStaggeredGrid documentation for examples '
-        'of how to refer to an AnimatedStaggeredGridState object: '
-        '  https://api.flutter.dev/flutter/widgets/AnimatedStaggeredGridState-class.html \n'
-        'The context used was:\n'
-        '  $context');
-  }
-
   @override
-  AnimatedStaggeredGridState createState() => AnimatedStaggeredGridState();
+  _AnimatedStaggeredGridState createState() => _AnimatedStaggeredGridState();
 }
 
 /// The state for a scrolling container that animates items when they are
 /// inserted or removed.
 ///
 /// When an item is inserted with [insertItem] an animation begins running. The
-/// animation is passed to [AnimatedStaggeredGrid.itemBuilder] whenever the item's widget
+/// animation is passed to [_AnimatedStaggeredGrid.itemBuilder] whenever the item's widget
 /// is needed.
 ///
 /// When an item is removed with [removeItem] its animation is reversed.
@@ -208,20 +182,20 @@ class AnimatedStaggeredGrid extends StatefulWidget {
 /// parameter.
 ///
 /// An app that needs to insert or remove items in response to an event
-/// can refer to the [AnimatedStaggeredGrid]'s state with a global key:
+/// can refer to the [_AnimatedStaggeredGrid]'s state with a global key:
 ///
 /// ```dart
-/// GlobalKey<AnimatedStaggeredGridState> listKey = GlobalKey<AnimatedStaggeredGridState>();
+/// GlobalKey<_AnimatedStaggeredGridState> listKey = GlobalKey<_AnimatedStaggeredGridState>();
 /// ...
-/// AnimatedStaggeredGrid(key: listKey, ...);
+/// _AnimatedStaggeredGrid(key: listKey, ...);
 /// ...
 /// listKey.currentState.insert(123);
 /// ```
 ///
-/// [AnimatedStaggeredGrid] item input handlers can also refer to their [AnimatedStaggeredGridState]
-/// with the static [AnimatedStaggeredGrid.of] method.
-class AnimatedStaggeredGridState extends State<AnimatedStaggeredGrid>
-    with TickerProviderStateMixin<AnimatedStaggeredGrid> {
+/// [_AnimatedStaggeredGrid] item input handlers can also refer to their [_AnimatedStaggeredGridState]
+/// with the static [_AnimatedStaggeredGrid.of] method.
+class _AnimatedStaggeredGridState extends State<_AnimatedStaggeredGrid>
+    with TickerProviderStateMixin<_AnimatedStaggeredGrid> {
   final List<_ActiveItem> _incomingItems = <_ActiveItem>[];
   final List<_ActiveItem> _outgoingItems = <_ActiveItem>[];
   int _itemsCount = 0;
@@ -279,7 +253,7 @@ class AnimatedStaggeredGridState extends State<AnimatedStaggeredGrid>
   }
 
   /// Insert an item at [index] and start an animation that will be passed
-  /// to [AnimatedStaggeredGrid.itemBuilder] when the item is visible.
+  /// to [_AnimatedStaggeredGrid.itemBuilder] when the item is visible.
   ///
   /// This method's semantics are the same as Dart's [List.insert] method:
   /// it increases the length of the list by one and shifts all items at or
@@ -321,14 +295,14 @@ class AnimatedStaggeredGridState extends State<AnimatedStaggeredGrid>
   /// to [builder] when the item is visible.
   ///
   /// Items are removed immediately. After an item has been removed, its index
-  /// will no longer be passed to the [AnimatedStaggeredGrid.itemBuilder]. However the
+  /// will no longer be passed to the [_AnimatedStaggeredGrid.itemBuilder]. However the
   /// item will still appear in the list for [duration] and during that time
   /// [builder] must construct its widget as needed.
   ///
   /// This method's semantics are the same as Dart's [List.remove] method:
   /// it decreases the length of the list by one and shifts all items at or
   /// before [index] towards the beginning of the list.
-  void removeItem(int index, AnimatedStaggeredGridRemovedItemBuilder builder,
+  void removeItem(int index, _AnimatedStaggeredGridRemovedItemBuilder builder,
       {Duration duration = _kDuration}) {
     assert(index >= 0);
 

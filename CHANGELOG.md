@@ -1,3 +1,7 @@
+## [1.25.1] - 2023-02-07
+
+* Fixed dependency conflicts with flutter/material after 3.7
+
 ## [1.25.0] - 2023-01-21
 
 * Updated `firebase_core` to 2.4.1

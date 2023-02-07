@@ -1,6 +1,6 @@
 name: firestore_ui
 description: A port of firebase_database's FirebaseAnimatedList that works with cloud_firestore, with additional variants
-version: 1.25.0
+version: 1.25.1
 homepage: https://github.com/gildaswise/firestore_ui
 # author: Gildásio Filho <gildasiogx@gmail.com>
 

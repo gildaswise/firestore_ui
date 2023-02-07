@@ -7,6 +7,8 @@ import 'package:firestore_ui/firestore_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 
+part 'animated_staggered_grid.dart';
+
 typedef Widget FirestoreAnimatedStaggeredItemBuilder<T>(
   BuildContext context,
   DocumentSnapshot<T>? snapshot,
@@ -182,8 +184,8 @@ class FirestoreAnimatedStaggered<T> extends StatefulWidget {
 
 class FirestoreAnimatedStaggeredState<T>
     extends State<FirestoreAnimatedStaggered<T>> {
-  final GlobalKey<AnimatedStaggeredGridState> _animatedListKey =
-      GlobalKey<AnimatedStaggeredGridState>();
+  final GlobalKey<_AnimatedStaggeredGridState> _animatedListKey =
+      GlobalKey<_AnimatedStaggeredGridState>();
   FirestoreList<T>? _model;
   Exception? _error;
   bool _loaded = false;
@@ -307,7 +309,7 @@ class FirestoreAnimatedStaggeredState<T>
       return widget.errorChild ?? const Center(child: Icon(Icons.error));
     }
 
-    return AnimatedStaggeredGrid(
+    return _AnimatedStaggeredGrid(
       key: _animatedListKey,
       staggeredTileBuilder: (index) =>
           widget.staggeredTileBuilder.call(index, _model!.elementAt(index)),
