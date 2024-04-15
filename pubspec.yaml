@@ -5,16 +5,16 @@ homepage: https://github.com/gildaswise/firestore_ui
 # author: Gildásio Filho <gildasiogx@gmail.com>
 
 environment:
-  sdk: '>=2.18.0 <3.0.0'
+  sdk: '>=2.18.0'
 
 dependencies:
   flutter:
     sdk: flutter
   meta: ^1.8.0
-  firebase_core: ^2.4.1
-  firebase_core_platform_interface: ^4.5.2
-  cloud_firestore: ^4.3.1
-  cloud_firestore_platform_interface: ^5.10.1
+  firebase_core: ^2.29.0
+  firebase_core_platform_interface: ^5.0.0
+  cloud_firestore: ^4.16.1
+  cloud_firestore_platform_interface: ^6.1.13
   flutter_staggered_grid_view: ^0.4.1
   collection: ^1.16.0
 
