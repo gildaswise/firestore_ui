@@ -1,5 +1,5 @@
 # This is a generated file; do not edit or check into version control.
-cloud_firestore=/Users/gildaswise/flutter/.pub-cache/hosted/pub.dartlang.org/cloud_firestore-4.3.1/
-cloud_firestore_web=/Users/gildaswise/flutter/.pub-cache/hosted/pub.dartlang.org/cloud_firestore_web-3.2.1/
-firebase_core=/Users/gildaswise/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_core-2.4.1/
-firebase_core_web=/Users/gildaswise/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_core_web-2.1.0/
+cloud_firestore=/Users/gildaswise/.pub-cache/hosted/pub.dev/cloud_firestore-5.0.1/
+cloud_firestore_web=/Users/gildaswise/.pub-cache/hosted/pub.dev/cloud_firestore_web-4.0.1/
+firebase_core=/Users/gildaswise/.pub-cache/hosted/pub.dev/firebase_core-3.1.0/
+firebase_core_web=/Users/gildaswise/.pub-cache/hosted/pub.dev/firebase_core_web-2.17.2/

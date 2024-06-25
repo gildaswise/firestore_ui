@@ -1,3 +1,12 @@
+## [1.3.0] - 2024-06-24
+
+* Updated Dart SDK to 3.0
+* Updated Flutter to 3.22
+* Updated `firebase_core` to 3.1.0
+* Updated `firebase_core_platform_interface` to 5.1.0
+* Updated `cloud_firestore` to 5.0.1
+* Updated `cloud_firestore_platform_interface` to 6.2.7
+
 ## [1.25.1] - 2023-02-07
 
 * Fixed dependency conflicts with flutter/material after 3.7
