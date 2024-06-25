@@ -1,4 +1,4 @@
-## [1.3.0] - 2024-06-24
+## [1.30.0] - 2024-06-24
 
 * Updated Dart SDK to 3.0
 * Updated Flutter to 3.22
