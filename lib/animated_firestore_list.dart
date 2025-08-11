@@ -4,7 +4,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firestore_ui/firestore_ui.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide FilterCallback;
 import 'package:collection/collection.dart';
 
 typedef Widget FirestoreAnimatedListItemBuilder<T>(
@@ -147,7 +147,8 @@ class FirestoreAnimatedList<T> extends StatefulWidget {
   final Duration duration;
 
   @override
-  FirestoreAnimatedListState<T> createState() => FirestoreAnimatedListState<T>();
+  FirestoreAnimatedListState<T> createState() =>
+      FirestoreAnimatedListState<T>();
 }
 
 class FirestoreAnimatedListState<T> extends State<FirestoreAnimatedList<T>> {

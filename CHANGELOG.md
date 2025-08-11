@@ -1,3 +1,11 @@
+## [1.32.8] - 2025-08-11
+
+* Updated Flutter to 3.32.8
+* Updated `firebase_core` to ^4.0.0
+* Updated `firebase_core_platform_interface` to ^6.0.0
+* Updated `cloud_firestore` to ^6.0.0
+* Updated `cloud_firestore_platform_interface` to ^7.0.0
+
 ## [1.30.0] - 2024-06-24
 
 * Updated Dart SDK to 3.0

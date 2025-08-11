@@ -4,7 +4,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firestore_ui/firestore_ui.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide FilterCallback;
 import 'package:collection/collection.dart';
 
 part 'animated_staggered_grid.dart';
